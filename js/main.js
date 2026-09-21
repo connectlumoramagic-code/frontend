@@ -12,7 +12,7 @@ const CONFIG = {
   // form only opens WhatsApp. Set it to the backend's address (for example
   // 'http://localhost:3000' or 'https://api.yourdomain.com') and each request
   // is also saved there, in the background, after WhatsApp opens.
-  apiBaseUrl: '',
+  apiBaseUrl: 'https://api.lumoramagic.com',
 };
 
 /* ---------- Life path data ---------- */

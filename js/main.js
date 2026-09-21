@@ -4,9 +4,9 @@
    ========================================================= */
 
 const CONFIG = {
-  whatsappNumber: '910000000000',  // [placeholder] country code + number, digits only
-  email: 'hello@yourdomain.com',   // [placeholder]
-  instagram: 'lumoramagic',        // [placeholder] handle without @
+  whatsappNumber: '918273792119',            // country code + number, digits only
+  email: 'connect.lumoramagic@gmail.com',
+  instagram: 'lumora.magic',                 // handle without @
 
   // Optional. Leave empty and the site behaves exactly as before: the booking
   // form only opens WhatsApp. Set it to the backend's address (for example

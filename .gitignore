@@ -1,0 +1,11 @@
+# Backend is kept out of this (frontend) repo
+backend/
+
+# Secrets and local files
+.env
+.env.*
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/

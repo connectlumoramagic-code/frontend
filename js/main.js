@@ -101,24 +101,37 @@ function initHeaderShadow() {
   window.addEventListener('scroll', update, { passive: true });
 }
 
-/* ---------- Shared: jump to the booking form ---------- */
+/* ---------- Shared: open the booking page, pre-filled ---------- */
 
-function goToBooking(service, birthdate) {
-  const book = $('#book');
+// /book?service=…&dob=YYYY-MM-DD — read back by prefillBooking() on that page.
+function bookingUrl(service, birthdate) {
+  const params = new URLSearchParams();
+  if (service) params.set('service', service);
+  if (birthdate) params.set('dob', birthdate);
+  const query = params.toString();
+  return '/book' + (query ? '?' + query : '');
+}
+
+function prefillBooking() {
+  if (!$('#booking-form')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const service = params.get('service');
+  const birthdate = params.get('dob');
+  if (!service && !birthdate) return;
+
   const serviceField = $('#service');
   const birthField = $('#birthdate');
   const nameField = $('#name');
 
-  if (book) book.scrollIntoView({ block: 'start' });
-
-  if (birthdate && birthField) birthField.value = birthdate;
+  if (birthdate && birthField && /^\d{4}-\d{2}-\d{2}$/.test(birthdate)) birthField.value = birthdate;
 
   if (service && serviceField) {
     const match = $$('option', serviceField).find((option) => option.text === service);
     if (match) serviceField.value = match.value || match.text;
   }
 
-  if (nameField) nameField.focus({ preventScroll: true });
+  if (nameField) nameField.focus();
 }
 
 /* ---------- 3. Life path calculator ---------- */
@@ -210,13 +223,10 @@ function renderResult(region, number, isoDate) {
   meaning.className = 'result__meaning';
   meaning.textContent = data.meaning;
 
-  const cta = document.createElement('button');
-  cta.type = 'button';
+  const cta = document.createElement('a');
   cta.className = 'btn btn--primary';
+  cta.href = bookingUrl('Full Numerology Reading', isoDate);
   cta.textContent = 'Get my full reading';
-  cta.addEventListener('click', () => {
-    goToBooking('Full Numerology Reading', isoDate);
-  });
 
   region.append(eyebrow, digit, title, meaning, cta);
 }
@@ -249,18 +259,7 @@ function initCalculator() {
   input.addEventListener('change', update);
 }
 
-/* ---------- 4. "Book this service" links ---------- */
-
-function initServiceLinks() {
-  $$('.card__link').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-      goToBooking(link.dataset.service, null);
-    });
-  });
-}
-
-/* ---------- 5. Booking form ---------- */
+/* ---------- 4. Booking form ---------- */
 
 function formatDate(value) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
@@ -375,7 +374,7 @@ function initBookingForm() {
   });
 }
 
-/* ---------- 6. Footer year ---------- */
+/* ---------- 5. Footer year ---------- */
 
 function initYear() {
   const year = $('#year');
@@ -388,6 +387,6 @@ applyConfig();
 initMenu();
 initHeaderShadow();
 initCalculator();
-initServiceLinks();
 initBookingForm();
+prefillBooking();
 initYear();

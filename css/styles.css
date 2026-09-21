@@ -138,6 +138,10 @@ button { font: inherit; }
 
 .section { padding-block: var(--space-section); }
 
+/* Booking button closing a page section. */
+.section__cta { margin-top: 48px; text-align: center; }
+.section__cta--start { margin-top: 32px; text-align: left; }
+
 .section__head { display: grid; gap: 20px; }
 
 .section__head--center { text-align: center; justify-items: center; }
@@ -354,6 +358,8 @@ button { font: inherit; }
 }
 
 .nav__link:hover { color: var(--green); }
+
+.nav__link[aria-current="page"] { color: var(--green); font-weight: 600; }
 
 .nav__cta { display: flex; width: 100%; margin-top: 16px; }
 

@@ -1,12 +1,17 @@
 # Lumora Magic — website
 
-A static, single-page site for Lumora Magic: numerology readings and spell/ritual work.
+A static, multi-page site for Lumora Magic: numerology readings and spell/ritual work.
 
 Plain HTML5, CSS and vanilla JavaScript. No frameworks, no build step, no dependencies —
 the files in this folder are the deployable site.
 
 ```
-index.html
+index.html                ← home (hero, numbers, testimonials)
+services.html             ← /services
+life-path.html            ← /life-path  (calculator)
+how-it-works.html         ← /how-it-works
+about.html                ← /about
+book.html                 ← /book       (booking form)
 css/styles.css
 js/main.js
 assets/favicon.svg
@@ -25,17 +30,18 @@ until you set `apiBaseUrl` in `js/main.js` — see
 
 ## Run it locally
 
-Any static server works. From this folder:
+The menu links use clean URLs (`/services`, `/book`…), so use a server that maps
+`/services` to `services.html`, as the production host does. From this folder:
 
 ```bash
-python -m http.server 8080      # or: python3 -m http.server 8080
+npx serve .
 ```
 
-Then open <http://localhost:8080>.
+Then open <http://localhost:3000>. The backend can also serve the site with the same
+behaviour (`SERVE_SITE=true`, see [backend/README.md](backend/README.md)).
 
-Other options: `npx serve .`, `php -S localhost:8080`, or the "Live Server" extension in
-VS Code. Opening `index.html` straight from the file system mostly works too, but a server
-is closer to production.
+`python -m http.server` and VS Code's "Live Server" load each page but show "not found"
+when you click the menu links, and opening the files straight from disk breaks them too.
 
 ---
 
@@ -60,7 +66,7 @@ so sharing previews start working as soon as the file exists.
 
 ### 2. `practitioner.jpg` — optional
 
-Search `index.html` for `PRACTITIONER PHOTO` and replace the placeholder `<div>` with the
+Search `about.html` for `PRACTITIONER PHOTO` and replace the placeholder `<div>` with the
 `<img>` tag in the comment above it:
 
 ```html
@@ -74,7 +80,7 @@ Put the real name in the `alt` text.
 ### 3. `lumora-logo-transparent.png` — optional
 
 To use a transparent logo instead of the text wordmark in the header, replace the contents
-of the `<a class="wordmark">` element in `index.html` with:
+of the `<a class="wordmark">` element in every page's header with:
 
 ```html
 <img class="wordmark__logo" src="assets/images/lumora-logo-transparent.png"
@@ -121,7 +127,7 @@ your site's origin to `ALLOWED_ORIGINS` in `backend/.env`. Full instructions are
 
 ### Placeholder text on the contact links
 
-The **visible text** of those links is separate placeholder copy. In `index.html`, search for:
+The **visible text** of those links is separate placeholder copy. In `book.html`, search for:
 
 | Search for | Replace with |
 |---|---|
@@ -134,19 +140,19 @@ The **visible text** of those links is separate placeholder copy. In `index.html
 ## The rest of the placeholders
 
 All placeholder copy is written in `[square brackets]` so it is easy to find. Search
-`index.html` for each one:
+the `.html` files for each one:
 
 | Placeholder | Where | What to put |
 |---|---|---|
-| `[PRICE]` (×6) | Service cards | Price for each service, in card order |
-| `[DURATION]` (×6) | Service cards | Session length for each service |
-| `[Practitioner Name]` | About heading, photo `alt` | The practitioner's name |
-| `[A short introduction — …]` | About paragraph | 2–4 sentences of introduction |
-| `[00]` / `[000]` / `[Lang]` | About stats | Years of practice, readings given, languages |
-| `[PRACTITIONER PHOTO]` | About | Replaced by the photo (see above) |
-| `[Client testimonial]` (×3) | Testimonials | Real client quotes |
-| `[Client name] · [City]` (×3) | Testimonials | Attribution for each quote |
-| `[LOGO IMAGE MISSING]` | Hero | Replaced by the logo (see above) |
+| `[PRICE]` (×6) | Service cards, `services.html` | Price for each service, in card order |
+| `[DURATION]` (×6) | Service cards, `services.html` | Session length for each service |
+| `[Practitioner Name]` | About heading, photo `alt`, `about.html` | The practitioner's name |
+| `[A short introduction — …]` | About paragraph, `about.html` | 2–4 sentences of introduction |
+| `[00]` / `[000]` / `[Lang]` | About stats, `about.html` | Years of practice, readings given, languages |
+| `[PRACTITIONER PHOTO]` | About, `about.html` | Replaced by the photo (see above) |
+| `[Client testimonial]` (×3) | Testimonials, `index.html` | Real client quotes |
+| `[Client name] · [City]` (×3) | Testimonials, `index.html` | Attribution for each quote |
+| `[LOGO IMAGE MISSING]` | Hero, `index.html` | Replaced by the logo (see above) |
 
 The services, the life path meanings, the three steps, the disclaimer and the headings are
 final copy — no placeholders there.

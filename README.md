@@ -8,6 +8,7 @@ the files in this folder are the deployable site.
 ```
 index.html                ← home (hero, numbers, testimonials)
 services.html             ← /services
+products.html             ← /products   (filled in from the backend)
 life-path.html            ← /life-path  (calculator)
 how-it-works.html         ← /how-it-works
 about.html                ← /about

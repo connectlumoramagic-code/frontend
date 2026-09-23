@@ -134,6 +134,189 @@ function prefillBooking() {
   if (nameField) nameField.focus();
 }
 
+/* ---------- Services from the backend ---------- */
+
+// Icons for the original six cards; any service added later gets the star.
+const SERVICE_ICONS = {
+  'full-numerology-reading': '<circle cx="12" cy="12" r="9"/><path d="M9.2 8.8h5.6l-3.2 7.4"/>',
+  'name-business-numerology': '<path d="M4.5 18.5V5.5L12 13l7.5-7.5v13"/>',
+  'lucky-dates-muhurat': '<rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3 10h18"/>',
+  'love-relationship-spells': '<path d="M20.4 5.6a5 5 0 0 0-7.1 0L12 6.9l-1.3-1.3a5 5 0 1 0-7.1 7.1l1.3 1.3L12 21.1l7.1-7.1 1.3-1.3a5 5 0 0 0 0-7.1Z"/>',
+  'protection-cleansing': '<path d="M12 2.8 19.2 6v5.6c0 4.5-3 7.8-7.2 8.8-4.2-1-7.2-4.3-7.2-8.8V6Z"/><path d="M9.1 11.9 11 13.8l3.9-3.9"/>',
+  'career-prosperity-rituals': '<path d="M3 17.5 8.8 11.7l3.6 3.6L20.5 7.2"/><path d="M14.8 7.2h5.7v5.7"/>',
+};
+const DEFAULT_SERVICE_ICON = '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z"/>';
+
+function serviceCard(service) {
+  const item = document.createElement('li');
+  item.className = 'card';
+
+  const icon = document.createElement('span');
+  icon.className = 'card__icon card__icon--' + (service.tile === 'gold' ? 'gold' : 'green');
+  icon.innerHTML =
+    '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
+    (SERVICE_ICONS[service.slug] || DEFAULT_SERVICE_ICON) + '</svg>';
+
+  const title = document.createElement('h3');
+  title.className = 'card__title';
+  title.textContent = service.title;
+
+  const text = document.createElement('p');
+  text.className = 'card__text';
+  text.textContent = service.description;
+
+  item.append(icon, title, text);
+
+  if (service.price || service.duration) {
+    const meta = document.createElement('p');
+    meta.className = 'card__meta';
+    const price = document.createElement('span');
+    price.className = 'card__price';
+    price.textContent = service.price || '';
+    const duration = document.createElement('span');
+    duration.className = 'card__duration';
+    duration.textContent = service.duration || '';
+    meta.append(price, document.createTextNode(' '), duration);
+    item.append(meta);
+  }
+
+  const link = document.createElement('a');
+  link.className = 'card__link';
+  link.href = bookingUrl(service.title);
+  link.textContent = 'Book this service';
+  item.append(link);
+
+  return item;
+}
+
+/**
+ * Replaces the service cards and the booking form's options with the list
+ * the practitioner manages in the backend admin. The services written into
+ * the HTML stay in place if there is no backend or it cannot be reached.
+ */
+function loadServices() {
+  const cards = $('#service-cards');
+  const select = $('#service');
+  if (!CONFIG.apiBaseUrl || (!cards && !select)) return;
+
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/services')
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then(({ items }) => {
+      if (!Array.isArray(items) || items.length === 0) return;
+
+      if (cards) cards.replaceChildren(...items.map(serviceCard));
+
+      if (select) {
+        const chosen = select.value || new URLSearchParams(window.location.search).get('service');
+        const placeholder = select.options[0];
+        const options = items.map((service) => {
+          const option = document.createElement('option');
+          option.textContent = service.title;
+          return option;
+        });
+        select.replaceChildren(placeholder, ...options);
+        const match = options.find((option) => option.text === chosen);
+        if (match) select.value = match.text;
+      }
+    })
+    .catch(() => {
+      /* Keep the services already in the page. */
+    });
+}
+
+/* ---------- Products from the backend ---------- */
+
+function productCard(product) {
+  const item = document.createElement('li');
+  item.className = 'card';
+
+  if (product.imageUrl) {
+    const image = document.createElement('img');
+    image.className = 'card__image';
+    image.src = product.imageUrl;
+    image.alt = product.name;
+    image.loading = 'lazy';
+    image.width = 400;
+    image.height = 300;
+    item.append(image);
+  }
+
+  const title = document.createElement('h3');
+  title.className = 'card__title';
+  title.textContent = product.name;
+
+  const text = document.createElement('p');
+  text.className = 'card__text';
+  text.textContent = product.description;
+
+  item.append(title, text);
+
+  if (product.price) {
+    const meta = document.createElement('p');
+    meta.className = 'card__meta';
+    const price = document.createElement('span');
+    price.className = 'card__price';
+    price.textContent = product.price;
+    meta.append(price);
+    item.append(meta);
+  }
+
+  const message =
+    'Hello Lumora Magic, I’d like to order: ' + product.name +
+    (product.price ? ' (' + product.price + ')' : '') + '.';
+
+  const link = document.createElement('a');
+  link.className = 'card__link';
+  link.href = whatsappLink() + '?text=' + encodeURIComponent(message);
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.textContent = 'Order on WhatsApp';
+  item.append(link);
+
+  return item;
+}
+
+/**
+ * Fills the Products page from the list the practitioner manages in the
+ * backend admin. With no products, or no backend, it points to WhatsApp.
+ */
+function loadProducts() {
+  const cards = $('#product-cards');
+  if (!cards) return;
+
+  const empty = $('#products-empty');
+  const emptyText = $('#products-empty-text');
+  const whatsapp = $('#products-whatsapp');
+
+  const showEmpty = (message) => {
+    emptyText.textContent = message;
+    whatsapp.href = whatsappLink() + '?text=' +
+      encodeURIComponent('Hello Lumora Magic, I’d like to know which products you have available.');
+    whatsapp.hidden = false;
+    empty.hidden = false;
+  };
+
+  if (!CONFIG.apiBaseUrl) {
+    showEmpty('Message us on WhatsApp to see what’s available.');
+    return;
+  }
+
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/products')
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then(({ items }) => {
+      if (!Array.isArray(items) || items.length === 0) {
+        showEmpty('New products are on their way. Message us on WhatsApp to ask what’s available.');
+        return;
+      }
+      cards.replaceChildren(...items.map(productCard));
+      empty.hidden = true;
+    })
+    .catch(() => {
+      showEmpty('Products couldn’t be loaded just now. Message us on WhatsApp to see what’s available.');
+    });
+}
+
 /* ---------- 3. Life path calculator ---------- */
 
 function reduceToLifePath(digits) {
@@ -389,4 +572,6 @@ initHeaderShadow();
 initCalculator();
 initBookingForm();
 prefillBooking();
+loadServices();
+loadProducts();
 initYear();

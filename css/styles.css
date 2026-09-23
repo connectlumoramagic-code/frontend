@@ -1271,6 +1271,152 @@ button { font: inherit; }
   .footer__nav { justify-self: end; }
 }
 
+/* ---------- 14b. Live graphics ---------- */
+
+/* Starfield: a canvas drawn by initStarfields() in main.js, behind the content. */
+.starfield {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero > .container { position: relative; z-index: 1; }
+
+/* Numerology wheel: three rings turning at different speeds behind the logo. */
+.hero__media { isolation: isolate; }
+
+.wheel {
+  position: absolute;
+  inset: -34%;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--gold);
+}
+
+.wheel svg { width: 100%; height: 100%; overflow: visible; }
+
+.wheel__ring { transform-origin: 200px 200px; transform-box: view-box; }
+
+.wheel__ring--outer { animation: wheel-turn 140s linear infinite; }
+
+.wheel__ring--numbers { animation: wheel-turn 90s linear infinite reverse; }
+
+.wheel__ring--star { animation: wheel-turn 60s linear infinite; }
+
+.wheel__names { font: 600 9.5px/1 var(--font-sans); letter-spacing: 3.2px; fill: var(--gold-text); opacity: 0.55; }
+
+.wheel__digit { font: 600 18px/1 var(--font-serif); fill: var(--green); opacity: 0.6; text-anchor: middle; dominant-baseline: central; }
+
+@keyframes wheel-turn { to { transform: rotate(360deg); } }
+
+/* Headline letters rise into place one after another (split by initHeadline()). */
+.char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.45em);
+  filter: blur(6px);
+  animation: char-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i) * 28ms + 150ms);
+}
+
+.word { display: inline-block; white-space: nowrap; }
+
+@keyframes char-in { to { opacity: 1; transform: none; filter: none; } }
+
+/* Scroll reveal: initReveal() adds .reveal, then .is-visible once in view. */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* Numbers strip as a slow, endless ribbon (the copy is added by initMarquee()). */
+.numbers--marquee { overflow: hidden; }
+
+.numbers--marquee .container { max-width: none; padding-inline: 0; }
+
+.numbers__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 45s linear infinite;
+}
+
+.numbers--marquee:hover .numbers__track { animation-play-state: paused; }
+
+.numbers--marquee .numbers__list {
+  display: flex;
+  flex: none;
+  gap: 0;
+}
+
+.numbers--marquee .numbers__item { width: clamp(120px, 11vw, 170px); flex: none; }
+
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Dark, starry call-to-action band */
+.cta-band { padding-block: clamp(3rem, 2rem + 4vw, 5rem); }
+
+.cta-band__panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background:
+    radial-gradient(70% 120% at 100% 0%, rgba(212, 167, 44, 0.22), transparent 60%),
+    radial-gradient(60% 100% at 0% 100%, rgba(63, 122, 42, 0.5), transparent 70%),
+    #13261A;
+  color: var(--footer-text);
+  box-shadow: var(--shadow-hero);
+}
+
+.cta-band__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 28px;
+  padding: clamp(32px, 5vw, 64px);
+}
+
+.cta-band__title {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: var(--fs-h2);
+  line-height: 1.05;
+  color: #fff;
+}
+
+.cta-band__title .script { color: var(--footer-gold); }
+
+.cta-band__text { max-width: 46ch; font-size: var(--fs-lede); color: var(--footer-muted); }
+
+.cta-band__actions { display: flex; flex-wrap: wrap; gap: 14px; }
+
+.cta-band .btn--secondary { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.45); }
+
+.cta-band .btn--secondary:hover { border-color: #fff; }
+
+.btn--glow {
+  background: var(--footer-gold);
+  color: #1F3A24;
+  box-shadow: 0 0 0 0 rgba(242, 217, 138, 0.55);
+  animation: glow 2.6s ease-in-out infinite;
+}
+
+.btn--glow:hover { background: #F7E3A6; }
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 18px 2px rgba(242, 217, 138, 0.35); }
+  50%      { box-shadow: 0 0 34px 8px rgba(242, 217, 138, 0.6); }
+}
+
+@media (min-width: 1024px) {
+  .cta-band__inner { grid-template-columns: 1fr auto; align-items: center; }
+}
+
 /* ---------- 15. Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1280,6 +1426,15 @@ button { font: inherit; }
     animation: none;
     opacity: 0.55;
   }
+
+  /* Still versions: letters and sections simply appear, the wheel stays put,
+     and the numbers strip goes back to its grid (its copy is hidden). */
+  .char,
+  .reveal { opacity: 1; transform: none; filter: none; animation: none; }
+  .wheel__ring { animation: none; }
+  .numbers__track { animation: none; width: auto; }
+  .numbers__list[aria-hidden="true"] { display: none; }
+  .btn--glow { animation: none; }
 
   *,
   *::before,

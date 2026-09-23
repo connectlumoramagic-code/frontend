@@ -49,6 +49,12 @@ function applyConfig() {
   if (wa) wa.href = whatsappLink();
   if (mail) mail.href = 'mailto:' + CONFIG.email;
   if (insta) insta.href = 'https://instagram.com/' + CONFIG.instagram;
+
+  const cta = $('#cta-whatsapp');
+  if (cta) {
+    cta.href = whatsappLink() + '?text=' +
+      encodeURIComponent('Hello Lumora Magic, I’m not sure which reading or ritual is right for me. Could you help?');
+  }
 }
 
 /* ---------- 1. Mobile menu ---------- */
@@ -802,6 +808,231 @@ function initYear() {
   if (year) year.textContent = String(new Date().getFullYear());
 }
 
+/* ---------- Live graphics ---------- */
+
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Star colours as "r,g,b": gold and green on the light hero, soft light on the dark band.
+const STAR_PALETTES = {
+  dawn: ['212,167,44', '212,167,44', '63,122,42', '122,92,12'],
+  night: ['255,248,225', '242,217,138', '221,239,201', '255,255,255'],
+};
+
+/**
+ * A slowly drifting, twinkling starfield with the odd shooting star, drawn on
+ * every canvas.starfield. It only animates while on screen and while the tab
+ * is visible; with reduced motion it is drawn once and stays still.
+ */
+function initStarfields() {
+  $$('canvas.starfield').forEach((canvas) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const palette = STAR_PALETTES[canvas.dataset.palette] || STAR_PALETTES.dawn;
+    const still = reducedMotion();
+    const night = canvas.dataset.palette === 'night';
+    let stars = [];
+    let width = 0;
+    let height = 0;
+    let visible = false;
+    let frame = 0;
+    let last = 0;
+    let shooting = null;
+    let nextShooting = 3000 + Math.random() * 4000;
+
+    const makeStar = () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      r: Math.random() * (night ? 1.3 : 1.6) + 0.4,
+      color: palette[Math.floor(Math.random() * palette.length)],
+      base: night ? 0.35 + Math.random() * 0.6 : 0.2 + Math.random() * 0.45,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.5 + Math.random() * 1.5,
+      vx: (Math.random() - 0.5) * 5,
+      vy: -(1.5 + Math.random() * 5),
+    });
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round(Math.min(night ? 140 : 110, (width * height) / (night ? 3500 : 6500)));
+      stars = Array.from({ length: count }, makeStar);
+      draw(performance.now(), 0);
+    };
+
+    // A four-pointed glint on the larger stars, like the site's sparkle icon.
+    const glint = (x, y, size) => {
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.quadraticCurveTo(x, y, x + size, y);
+      ctx.quadraticCurveTo(x, y, x, y + size);
+      ctx.quadraticCurveTo(x, y, x - size, y);
+      ctx.quadraticCurveTo(x, y, x, y - size);
+      ctx.fill();
+    };
+
+    function draw(now, dt) {
+      ctx.clearRect(0, 0, width, height);
+
+      for (const star of stars) {
+        if (dt) {
+          star.x += star.vx * dt;
+          star.y += star.vy * dt;
+          if (star.y < -4) { star.y = height + 4; star.x = Math.random() * width; }
+          if (star.x < -4) star.x = width + 4;
+          if (star.x > width + 4) star.x = -4;
+        }
+        const twinkle = still ? 1 : 0.55 + 0.45 * Math.sin((now / 1000) * star.speed + star.phase);
+        ctx.fillStyle = `rgba(${star.color},${(star.base * twinkle).toFixed(3)})`;
+        if (star.r > 1.55) {
+          glint(star.x, star.y, star.r * 2.6);
+        } else {
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      if (shooting) {
+        const p = (now - shooting.start) / shooting.life;
+        if (p >= 1) {
+          shooting = null;
+        } else {
+          const head = { x: shooting.x + shooting.dx * p, y: shooting.y + shooting.dy * p };
+          const tail = { x: head.x - shooting.dx * 0.18, y: head.y - shooting.dy * 0.18 };
+          const fade = Math.sin(p * Math.PI);
+          const trail = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+          trail.addColorStop(0, `rgba(${palette[1]},0)`);
+          trail.addColorStop(1, `rgba(${palette[1]},${(0.9 * fade).toFixed(3)})`);
+          ctx.strokeStyle = trail;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(tail.x, tail.y);
+          ctx.lineTo(head.x, head.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function tick(now) {
+      frame = 0;
+      if (!visible || document.hidden) return;
+      const dt = last ? Math.min((now - last) / 1000, 0.05) : 0;
+      last = now;
+
+      nextShooting -= dt * 1000;
+      if (!shooting && nextShooting <= 0) {
+        const fromLeft = Math.random() < 0.5;
+        shooting = {
+          x: fromLeft ? Math.random() * width * 0.4 : width * (0.6 + Math.random() * 0.4),
+          y: Math.random() * height * 0.35,
+          dx: (fromLeft ? 1 : -1) * width * 0.35,
+          dy: height * 0.35,
+          start: now,
+          life: 900,
+        };
+        nextShooting = 6000 + Math.random() * 7000;
+      }
+
+      draw(now, dt);
+      frame = requestAnimationFrame(tick);
+    }
+
+    const start = () => {
+      if (still || frame || !visible || document.hidden) return;
+      last = 0;
+      frame = requestAnimationFrame(tick);
+    };
+
+    resize();
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        visible = entries[0].isIntersecting;
+        start();
+      }).observe(canvas);
+    } else {
+      visible = true;
+      start();
+    }
+    document.addEventListener('visibilitychange', start);
+  });
+}
+
+/** Splits the home page headline into letters that rise in one after another. */
+function initHeadline() {
+  const heading = $('.hero .h1');
+  if (!heading || reducedMotion()) return;
+
+  // Screen readers get the sentence once, not letter by letter.
+  heading.setAttribute('aria-label', heading.textContent.replace(/\s+/g, ' ').trim());
+
+  let i = 0;
+  $$('.h1__line, .h1__script', heading).forEach((line) => {
+    const words = line.textContent.trim().split(/\s+/);
+    line.replaceChildren(
+      ...words.flatMap((word, w) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word';
+        wordSpan.setAttribute('aria-hidden', 'true');
+        for (const letter of word) {
+          const char = document.createElement('span');
+          char.className = 'char';
+          char.style.setProperty('--i', String(i++));
+          char.textContent = letter;
+          wordSpan.append(char);
+        }
+        return w < words.length - 1 ? [wordSpan, document.createTextNode(' ')] : [wordSpan];
+      })
+    );
+  });
+}
+
+/** Sections and cards fade up as they scroll into view. */
+function initReveal() {
+  if (reducedMotion() || !('IntersectionObserver' in window)) return;
+
+  const targets = $$('.section__head, .cards > li, .cta-band__panel, .steps > li, .about__inner > *');
+  if (targets.length === 0) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    }
+  }, { rootMargin: '0px 0px -8% 0px' });
+
+  targets.forEach((target) => {
+    // Cards in a row follow each other by a beat.
+    const index = Array.prototype.indexOf.call(target.parentElement.children, target);
+    target.style.setProperty('--reveal-delay', Math.min(index, 5) * 90 + 'ms');
+    target.classList.add('reveal');
+    observer.observe(target);
+  });
+}
+
+/** The 1–9 strip becomes an endless, slowly moving ribbon. */
+function initMarquee() {
+  const strip = $('.numbers');
+  const list = strip && $('.numbers__list', strip);
+  if (!list || reducedMotion()) return;
+
+  const copy = list.cloneNode(true);
+  copy.setAttribute('aria-hidden', 'true');
+  const track = document.createElement('div');
+  track.className = 'numbers__track';
+  list.replaceWith(track);
+  track.append(list, copy);
+  strip.classList.add('numbers--marquee');
+}
+
 /* ---------- Boot ---------- */
 
 applyConfig();
@@ -814,3 +1045,7 @@ loadServices();
 loadItemPage();
 loadProducts();
 initYear();
+initStarfields();
+initHeadline();
+initMarquee();
+initReveal();

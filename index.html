@@ -22,8 +22,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Great+Vibes&amp;family=Karla:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20260924-2">
-<script src="js/main.js?v=20260924-2" defer></script>
+<link rel="stylesheet" href="css/styles.css?v=20260924-3">
+<script src="js/main.js?v=20260924-3" defer></script>
 </head>
 <body>
 
@@ -58,6 +58,7 @@
 
   <!-- ===================== HERO ===================== -->
   <section class="hero" id="top">
+    <canvas class="starfield" data-palette="dawn" aria-hidden="true"></canvas>
     <div class="container hero__inner">
       <div class="hero__text">
         <p class="eyebrow">
@@ -80,6 +81,30 @@
       </div>
 
       <div class="hero__media">
+        <!-- Numerology wheel: turns slowly behind the logo (see .wheel in styles.css). -->
+        <div class="wheel" aria-hidden="true">
+          <svg viewBox="0 0 400 400" focusable="false">
+            <defs><path id="wheel-names-path" d="M200,200 m-178,0 a178,178 0 1,1 356,0 a178,178 0 1,1 -356,0"/></defs>
+            <g class="wheel__ring wheel__ring--outer" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.5">
+              <circle cx="200" cy="200" r="196"/>
+              <circle cx="200" cy="200" r="164"/>
+              <line x1="200.0" y1="14.0" x2="200.0" y2="6.0"/><line x1="219.4" y1="15.0" x2="219.9" y2="11.0"/><line x1="238.7" y1="18.1" x2="239.5" y2="14.2"/><line x1="257.5" y1="23.1" x2="258.7" y2="19.3"/><line x1="275.7" y1="30.1" x2="277.3" y2="26.4"/><line x1="293.0" y1="38.9" x2="297.0" y2="32.0"/><line x1="309.3" y1="49.5" x2="311.7" y2="46.3"/><line x1="324.5" y1="61.8" x2="327.1" y2="58.8"/><line x1="338.2" y1="75.5" x2="341.2" y2="72.9"/><line x1="350.5" y1="90.7" x2="353.7" y2="88.3"/><line x1="361.1" y1="107.0" x2="368.0" y2="103.0"/><line x1="369.9" y1="124.3" x2="373.6" y2="122.7"/><line x1="376.9" y1="142.5" x2="380.7" y2="141.3"/><line x1="381.9" y1="161.3" x2="385.8" y2="160.5"/><line x1="385.0" y1="180.6" x2="389.0" y2="180.1"/><line x1="386.0" y1="200.0" x2="394.0" y2="200.0"/><line x1="385.0" y1="219.4" x2="389.0" y2="219.9"/><line x1="381.9" y1="238.7" x2="385.8" y2="239.5"/><line x1="376.9" y1="257.5" x2="380.7" y2="258.7"/><line x1="369.9" y1="275.7" x2="373.6" y2="277.3"/><line x1="361.1" y1="293.0" x2="368.0" y2="297.0"/><line x1="350.5" y1="309.3" x2="353.7" y2="311.7"/><line x1="338.2" y1="324.5" x2="341.2" y2="327.1"/><line x1="324.5" y1="338.2" x2="327.1" y2="341.2"/><line x1="309.3" y1="350.5" x2="311.7" y2="353.7"/><line x1="293.0" y1="361.1" x2="297.0" y2="368.0"/><line x1="275.7" y1="369.9" x2="277.3" y2="373.6"/><line x1="257.5" y1="376.9" x2="258.7" y2="380.7"/><line x1="238.7" y1="381.9" x2="239.5" y2="385.8"/><line x1="219.4" y1="385.0" x2="219.9" y2="389.0"/><line x1="200.0" y1="386.0" x2="200.0" y2="394.0"/><line x1="180.6" y1="385.0" x2="180.1" y2="389.0"/><line x1="161.3" y1="381.9" x2="160.5" y2="385.8"/><line x1="142.5" y1="376.9" x2="141.3" y2="380.7"/><line x1="124.3" y1="369.9" x2="122.7" y2="373.6"/><line x1="107.0" y1="361.1" x2="103.0" y2="368.0"/><line x1="90.7" y1="350.5" x2="88.3" y2="353.7"/><line x1="75.5" y1="338.2" x2="72.9" y2="341.2"/><line x1="61.8" y1="324.5" x2="58.8" y2="327.1"/><line x1="49.5" y1="309.3" x2="46.3" y2="311.7"/><line x1="38.9" y1="293.0" x2="32.0" y2="297.0"/><line x1="30.1" y1="275.7" x2="26.4" y2="277.3"/><line x1="23.1" y1="257.5" x2="19.3" y2="258.7"/><line x1="18.1" y1="238.7" x2="14.2" y2="239.5"/><line x1="15.0" y1="219.4" x2="11.0" y2="219.9"/><line x1="14.0" y1="200.0" x2="6.0" y2="200.0"/><line x1="15.0" y1="180.6" x2="11.0" y2="180.1"/><line x1="18.1" y1="161.3" x2="14.2" y2="160.5"/><line x1="23.1" y1="142.5" x2="19.3" y2="141.3"/><line x1="30.1" y1="124.3" x2="26.4" y2="122.7"/><line x1="38.9" y1="107.0" x2="32.0" y2="103.0"/><line x1="49.5" y1="90.7" x2="46.3" y2="88.3"/><line x1="61.8" y1="75.5" x2="58.8" y2="72.9"/><line x1="75.5" y1="61.8" x2="72.9" y2="58.8"/><line x1="90.7" y1="49.5" x2="88.3" y2="46.3"/><line x1="107.0" y1="38.9" x2="103.0" y2="32.0"/><line x1="124.3" y1="30.1" x2="122.7" y2="26.4"/><line x1="142.5" y1="23.1" x2="141.3" y2="19.3"/><line x1="161.3" y1="18.1" x2="160.5" y2="14.2"/><line x1="180.6" y1="15.0" x2="180.1" y2="11.0"/>
+              <text class="wheel__names" stroke="none"><textPath href="#wheel-names-path" textLength="1110" lengthAdjust="spacing">LEADER · HARMONISER · CREATOR · BUILDER · EXPLORER · NURTURER · SEEKER · ACHIEVER · HEALER · INTUITIVE · MASTER BUILDER · TEACHER · </textPath></text>
+            </g>
+            <g class="wheel__ring wheel__ring--numbers">
+              <circle cx="200" cy="200" r="134" fill="none" stroke="currentColor" stroke-opacity="0.45"/>
+              <g fill="currentColor" opacity="0.7"><circle cx="238.8" cy="55.1" r="1.6"/><circle cx="306.1" cy="93.9" r="1.6"/><circle cx="344.9" cy="161.2" r="1.6"/><circle cx="344.9" cy="238.8" r="1.6"/><circle cx="306.1" cy="306.1" r="1.6"/><circle cx="238.8" cy="344.9" r="1.6"/><circle cx="161.2" cy="344.9" r="1.6"/><circle cx="93.9" cy="306.1" r="1.6"/><circle cx="55.1" cy="238.8" r="1.6"/><circle cx="55.1" cy="161.2" r="1.6"/><circle cx="93.9" cy="93.9" r="1.6"/><circle cx="161.2" cy="55.1" r="1.6"/></g>
+              <text class="wheel__digit" x="200.0" y="50.0">1</text><text class="wheel__digit" x="275.0" y="70.1">2</text><text class="wheel__digit" x="329.9" y="125.0">3</text><text class="wheel__digit" x="350.0" y="200.0">4</text><text class="wheel__digit" x="329.9" y="275.0">5</text><text class="wheel__digit" x="275.0" y="329.9">6</text><text class="wheel__digit" x="200.0" y="350.0">7</text><text class="wheel__digit" x="125.0" y="329.9">8</text><text class="wheel__digit" x="70.1" y="275.0">9</text><text class="wheel__digit" x="50.0" y="200.0">11</text><text class="wheel__digit" x="70.1" y="125.0">22</text><text class="wheel__digit" x="125.0" y="70.1">33</text>
+            </g>
+            <g class="wheel__ring wheel__ring--star" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.55">
+              <polygon points="200.0,88.0 238.3,305.2 128.0,114.2 297.0,256.0 89.7,180.6 310.3,180.6 103.0,256.0 272.0,114.2 161.7,305.2"/>
+              <circle cx="200" cy="200" r="112" stroke-opacity="0.3"/>
+              <circle cx="200" cy="200" r="46" stroke-opacity="0.45"/>
+              <g fill="currentColor" stroke="none" opacity="0.8"><circle cx="200.0" cy="88.0" r="2.4"/><circle cx="272.0" cy="114.2" r="2.4"/><circle cx="310.3" cy="180.6" r="2.4"/><circle cx="297.0" cy="256.0" r="2.4"/><circle cx="238.3" cy="305.2" r="2.4"/><circle cx="161.7" cy="305.2" r="2.4"/><circle cx="103.0" cy="256.0" r="2.4"/><circle cx="89.7" cy="180.6" r="2.4"/><circle cx="128.0" cy="114.2" r="2.4"/></g>
+            </g>
+          </svg>
+        </div>
+
         <!--
           MISSING FILE: assets/images/lumora-logo.jpg was not supplied with this brief.
           Once you add it, delete the .hero__logo-fallback block below and use:
@@ -121,6 +146,25 @@
       </ul>
     </div>
   </div>
+
+<!-- ===================== CTA BAND ===================== -->
+  <section class="cta-band" aria-labelledby="cta-title">
+    <div class="container">
+      <div class="cta-band__panel">
+        <canvas class="starfield" data-palette="night" aria-hidden="true"></canvas>
+        <div class="cta-band__inner">
+          <div>
+            <h2 class="cta-band__title" id="cta-title">Not sure where <span class="script">to begin?</span></h2>
+            <p class="cta-band__text">Tell us what is on your mind and we will suggest the reading or ritual that fits you best.</p>
+          </div>
+          <div class="cta-band__actions">
+            <a class="btn btn--glow" id="cta-whatsapp" href="https://wa.me/" target="_blank" rel="noopener">Ask on WhatsApp</a>
+            <a class="btn btn--secondary" href="/services">See all services</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
 <!-- ===================== TESTIMONIALS ===================== -->
   <section class="section">

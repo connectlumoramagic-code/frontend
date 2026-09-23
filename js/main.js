@@ -147,8 +147,9 @@ const SERVICE_ICONS = {
 };
 const DEFAULT_SERVICE_ICON = '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z"/>';
 
-// /service?slug=… — the service's own page, read back by loadServiceDetail().
+// /service?slug=… and /product?slug=… — each item's own page, read back by loadItemPage().
 const serviceUrl = (slug) => '/service?slug=' + encodeURIComponent(slug);
+const productUrl = (slug) => '/product?slug=' + encodeURIComponent(slug);
 
 function setServiceIcon(icon, service) {
   icon.className = 'card__icon card__icon--' + (service.tile === 'gold' ? 'gold' : 'green');
@@ -158,53 +159,114 @@ function setServiceIcon(icon, service) {
     (SERVICE_ICONS[service.slug] || DEFAULT_SERVICE_ICON) + '</svg>';
 }
 
-function serviceCard(service) {
-  const item = document.createElement('li');
-  item.className = 'card card--linked';
+/** '₹1,799' → 1799, or null when the text holds no amount. */
+function priceNumber(text) {
+  const value = Number.parseFloat(String(text || '').replace(/[^\d.]/g, ''));
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
 
-  const icon = document.createElement('span');
-  setServiceIcon(icon, service);
+/** Percentage off, when both prices are plain amounts and the original is higher. */
+function discountPercent(price, compareAt) {
+  const now = priceNumber(price);
+  const was = priceNumber(compareAt);
+  if (!now || !was || was <= now) return null;
+  return Math.floor((1 - now / was) * 100); // rounded down, so it never overstates the saving
+}
 
-  // The title link covers the whole card (see .card__title-link in the CSS).
+/** A card's price: the original struck through, then the price. */
+function cardPrice(item) {
+  const price = document.createElement('span');
+  price.className = 'card__price';
+  if (item.compareAtPrice && item.price) {
+    const was = document.createElement('s');
+    was.className = 'card__compare';
+    was.textContent = item.compareAtPrice;
+    price.append(was, document.createTextNode(' '));
+  }
+  price.append(document.createTextNode(item.price || ''));
+  return price;
+}
+
+function cardBadge(text) {
+  const badge = document.createElement('span');
+  badge.className = 'card__badge';
+  badge.textContent = text;
+  return badge;
+}
+
+/** The first photo across the top of a card, with the badge on it. */
+function cardMedia(item, alt) {
+  const media = document.createElement('div');
+  media.className = 'card__media';
+  const image = document.createElement('img');
+  image.className = 'card__image';
+  image.src = item.images[0];
+  image.alt = alt;
+  image.loading = 'lazy';
+  image.width = 400;
+  image.height = 300;
+  media.append(image);
+  if (item.badge) media.append(cardBadge(item.badge));
+  return media;
+}
+
+/** The title link covers the whole card (see .card__title-link in the CSS). */
+function cardTitle(text, href) {
   const title = document.createElement('h3');
   title.className = 'card__title';
-  const titleLink = document.createElement('a');
-  titleLink.className = 'card__title-link';
-  titleLink.href = serviceUrl(service.slug);
-  titleLink.textContent = service.title;
-  title.append(titleLink);
+  const link = document.createElement('a');
+  link.className = 'card__title-link';
+  link.href = href;
+  link.textContent = text;
+  title.append(link);
+  return title;
+}
 
-  const text = document.createElement('p');
-  text.className = 'card__text';
-  text.textContent = service.description;
-
-  item.append(icon, title, text);
-
-  if (service.price || service.duration) {
-    const meta = document.createElement('p');
-    meta.className = 'card__meta';
-    const price = document.createElement('span');
-    price.className = 'card__price';
-    price.textContent = service.price || '';
-    const duration = document.createElement('span');
-    duration.className = 'card__duration';
-    duration.textContent = service.duration || '';
-    meta.append(price, document.createTextNode(' '), duration);
-    item.append(meta);
-  }
-
+function cardLinks(action) {
   const links = document.createElement('div');
   links.className = 'card__links';
   const more = document.createElement('span');
   more.className = 'card__more';
   more.setAttribute('aria-hidden', 'true');
   more.textContent = 'View details →';
+  links.append(more, action);
+  return links;
+}
+
+function serviceCard(service) {
+  const item = document.createElement('li');
+  item.className = 'card card--linked';
+
+  if (service.images && service.images.length) {
+    item.append(cardMedia(service, service.title));
+  } else {
+    const icon = document.createElement('span');
+    setServiceIcon(icon, service);
+    item.append(icon);
+    if (service.badge) item.append(cardBadge(service.badge));
+  }
+
+  const text = document.createElement('p');
+  text.className = 'card__text';
+  text.textContent = service.description;
+
+  item.append(cardTitle(service.title, serviceUrl(service.slug)), text);
+
+  if (service.price || service.duration) {
+    const meta = document.createElement('p');
+    meta.className = 'card__meta';
+    const duration = document.createElement('span');
+    duration.className = 'card__duration';
+    duration.textContent = service.duration || '';
+    meta.append(cardPrice(service), document.createTextNode(' '), duration);
+    item.append(meta);
+  }
+
   const book = document.createElement('a');
   book.className = 'card__link';
   book.href = bookingUrl(service.title);
   book.textContent = 'Book this service';
-  links.append(more, book);
-  item.append(links);
+  item.append(cardLinks(book));
 
   return item;
 }
@@ -224,18 +286,83 @@ function renderParagraphs(container, text) {
   );
 }
 
-/** The service page: /service?slug=full-numerology-reading */
-function loadServiceDetail() {
-  const page = $('#service-detail');
+const whatsappText = (message) => whatsappLink() + '?text=' + encodeURIComponent(message);
+
+/** Main photo with arrows, thumbnails, arrow keys and swipe. */
+function initGallery(images, name, placeholderItem) {
+  const image = $('#gallery-image');
+  const thumbs = $('#gallery-thumbs');
+  const prev = $('#gallery-prev');
+  const next = $('#gallery-next');
+  const stage = image.parentElement;
+
+  if (images.length === 0) {
+    setServiceIcon($('#item-icon'), placeholderItem);
+    $('#gallery-placeholder').hidden = false;
+    return;
+  }
+
+  let index = 0;
+  const buttons = images.map((src, i) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'gallery__thumb';
+    button.setAttribute('aria-label', 'Show photo ' + (i + 1) + ' of ' + images.length);
+    const thumb = document.createElement('img');
+    thumb.src = src;
+    thumb.alt = '';
+    thumb.loading = 'lazy';
+    button.append(thumb);
+    button.addEventListener('click', () => show(i));
+    return button;
+  });
+
+  function show(i) {
+    index = (i + images.length) % images.length;
+    image.src = images[index];
+    image.alt = images.length > 1 ? name + ' — photo ' + (index + 1) + ' of ' + images.length : name;
+    buttons.forEach((button, b) => button.setAttribute('aria-current', String(b === index)));
+  }
+
+  image.hidden = false;
+  show(0);
+  if (images.length < 2) return;
+
+  thumbs.replaceChildren(...buttons);
+  thumbs.hidden = false;
+  prev.hidden = false;
+  next.hidden = false;
+  prev.addEventListener('click', () => show(index - 1));
+  next.addEventListener('click', () => show(index + 1));
+
+  $('#gallery').addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') show(index - 1);
+    if (event.key === 'ArrowRight') show(index + 1);
+  });
+
+  let startX = null;
+  stage.addEventListener('touchstart', (event) => { startX = event.touches[0].clientX; }, { passive: true });
+  stage.addEventListener('touchend', (event) => {
+    if (startX === null) return;
+    const dx = event.changedTouches[0].clientX - startX;
+    startX = null;
+    if (Math.abs(dx) > 40) show(index + (dx < 0 ? 1 : -1));
+  });
+}
+
+/** A service's or a product's own page: /service?slug=… or /product?slug=… */
+function loadItemPage() {
+  const page = $('#item-page');
   if (!page) return;
 
+  const kind = page.dataset.kind; // 'service' or 'product'
   const slug = new URLSearchParams(window.location.search).get('slug');
 
   const finish = (found) => {
     page.removeAttribute('aria-busy');
-    $('#service-loading').hidden = true;
-    $('#service-missing').hidden = found;
-    $('#service-content').hidden = !found;
+    $('#item-loading').hidden = true;
+    $('#item-missing').hidden = found;
+    $('#item-content').hidden = !found;
   };
 
   if (!slug || !CONFIG.apiBaseUrl) {
@@ -243,28 +370,72 @@ function loadServiceDetail() {
     return;
   }
 
-  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/services/' + encodeURIComponent(slug))
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/' + kind + 's/' + encodeURIComponent(slug))
     .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
-    .then((service) => {
-      document.title = service.title + ' — Lumora Magic';
+    .then((item) => {
+      const name = kind === 'service' ? item.title : item.name;
+
+      document.title = name + ' — Lumora Magic';
       const description = document.querySelector('meta[name="description"]');
-      if (description) description.setAttribute('content', service.description);
+      if (description) description.setAttribute('content', item.description);
 
-      setServiceIcon($('#service-icon'), service);
-      $('#service-title').textContent = service.title;
-      $('#service-description').textContent = service.description;
+      $('#item-title').textContent = name;
+      $('#item-description').textContent = item.description;
 
-      if (service.price || service.duration) {
-        $('#service-price').textContent = service.price || '';
-        $('#service-duration').textContent = service.duration || '';
-        $('#service-meta').hidden = false;
+      if (item.price) {
+        $('#item-price').textContent = item.price;
+        if (item.compareAtPrice) {
+          $('#item-compare').textContent = item.compareAtPrice;
+          $('#item-compare').hidden = false;
+        }
+        const off = discountPercent(item.price, item.compareAtPrice);
+        if (off) {
+          $('#item-discount').textContent = '−' + off + '%';
+          $('#item-discount').hidden = false;
+        }
+        $('#item-price-row').hidden = false;
       }
 
-      renderParagraphs($('#service-details'), service.details);
+      if (item.duration) {
+        $('#item-duration').textContent = 'Session length: ' + item.duration;
+        $('#item-duration').hidden = false;
+      }
 
-      $('#service-book').href = bookingUrl(service.title);
-      $('#service-whatsapp').href = whatsappLink() + '?text=' +
-        encodeURIComponent('Hello Lumora Magic, I have a question about ' + service.title + '.');
+      if (item.badge) {
+        $('#item-badge').textContent = item.badge;
+        $('#item-badge').hidden = false;
+      }
+
+      initGallery(item.images || [], name, kind === 'service' ? item : { slug: '', tile: 'gold' });
+
+      // Description, then the item's own sections (Delivery, Care…), all collapsible.
+      renderParagraphs($('#item-details'), item.details || item.description);
+      for (const section of item.sections || []) {
+        const block = document.createElement('details');
+        block.className = 'accordion';
+        const summary = document.createElement('summary');
+        summary.className = 'accordion__summary';
+        summary.textContent = section.title;
+        const body = document.createElement('div');
+        body.className = 'accordion__body';
+        renderParagraphs(body, section.body);
+        block.append(summary, body);
+        $('#item-sections').append(block);
+      }
+
+      const primary = $('#item-primary');
+      if (kind === 'service') {
+        primary.href = bookingUrl(name);
+        primary.textContent = 'Book this service';
+      } else {
+        primary.href = whatsappText(
+          'Hello Lumora Magic, I’d like to order: ' + name + (item.price ? ' (' + item.price + ')' : '') + '.'
+        );
+        primary.target = '_blank';
+        primary.rel = 'noopener';
+        primary.textContent = 'Order on WhatsApp';
+      }
+      $('#item-ask').href = whatsappText('Hello Lumora Magic, I have a question about ' + name + '.');
 
       finish(true);
     })
@@ -310,50 +481,36 @@ function loadServices() {
 
 function productCard(product) {
   const item = document.createElement('li');
-  item.className = 'card';
+  item.className = 'card card--linked';
 
-  if (product.imageUrl) {
-    const image = document.createElement('img');
-    image.className = 'card__image';
-    image.src = product.imageUrl;
-    image.alt = product.name;
-    image.loading = 'lazy';
-    image.width = 400;
-    image.height = 300;
-    item.append(image);
+  if (product.images && product.images.length) {
+    item.append(cardMedia(product, product.name));
+  } else if (product.badge) {
+    item.append(cardBadge(product.badge));
   }
-
-  const title = document.createElement('h3');
-  title.className = 'card__title';
-  title.textContent = product.name;
 
   const text = document.createElement('p');
   text.className = 'card__text';
   text.textContent = product.description;
 
-  item.append(title, text);
+  item.append(cardTitle(product.name, productUrl(product.slug)), text);
 
   if (product.price) {
     const meta = document.createElement('p');
     meta.className = 'card__meta';
-    const price = document.createElement('span');
-    price.className = 'card__price';
-    price.textContent = product.price;
-    meta.append(price);
+    meta.append(cardPrice(product));
     item.append(meta);
   }
 
-  const message =
-    'Hello Lumora Magic, I’d like to order: ' + product.name +
-    (product.price ? ' (' + product.price + ')' : '') + '.';
-
-  const link = document.createElement('a');
-  link.className = 'card__link';
-  link.href = whatsappLink() + '?text=' + encodeURIComponent(message);
-  link.target = '_blank';
-  link.rel = 'noopener';
-  link.textContent = 'Order on WhatsApp';
-  item.append(link);
+  const order = document.createElement('a');
+  order.className = 'card__link';
+  order.href = whatsappText(
+    'Hello Lumora Magic, I’d like to order: ' + product.name + (product.price ? ' (' + product.price + ')' : '') + '.'
+  );
+  order.target = '_blank';
+  order.rel = 'noopener';
+  order.textContent = 'Order on WhatsApp';
+  item.append(cardLinks(order));
 
   return item;
 }
@@ -654,6 +811,6 @@ initCalculator();
 initBookingForm();
 prefillBooking();
 loadServices();
-loadServiceDetail();
+loadItemPage();
 loadProducts();
 initYear();

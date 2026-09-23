@@ -9,6 +9,7 @@ the files in this folder are the deployable site.
 index.html                ← home (hero, numbers, testimonials)
 services.html             ← /services
 products.html             ← /products   (filled in from the backend)
+service.html              ← /service?slug=…  (one service's page, from the backend)
 life-path.html            ← /life-path  (calculator)
 how-it-works.html         ← /how-it-works
 about.html                ← /about
@@ -211,6 +212,10 @@ aws s3 cp index.html s3://YOUR-BUCKET/index.html \
 ---
 
 ## Notes for whoever edits this next
+
+- **After changing `css/styles.css` or `js/main.js`**, bump the `?v=` number on their
+  `<link>` and `<script>` tags in every `.html` file (search for `?v=`). The host sends
+  no cache headers, so without a new number browsers keep using the old file.
 
 - **Design tokens** — every colour, font, size and radius is a CSS custom property at the
   top of `css/styles.css`. Change a value there and it updates everywhere. There are no

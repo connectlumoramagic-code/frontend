@@ -147,20 +147,32 @@ const SERVICE_ICONS = {
 };
 const DEFAULT_SERVICE_ICON = '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9Z"/>';
 
-function serviceCard(service) {
-  const item = document.createElement('li');
-  item.className = 'card';
+// /service?slug=… — the service's own page, read back by loadServiceDetail().
+const serviceUrl = (slug) => '/service?slug=' + encodeURIComponent(slug);
 
-  const icon = document.createElement('span');
+function setServiceIcon(icon, service) {
   icon.className = 'card__icon card__icon--' + (service.tile === 'gold' ? 'gold' : 'green');
   icon.innerHTML =
     '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
     'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' +
     (SERVICE_ICONS[service.slug] || DEFAULT_SERVICE_ICON) + '</svg>';
+}
 
+function serviceCard(service) {
+  const item = document.createElement('li');
+  item.className = 'card card--linked';
+
+  const icon = document.createElement('span');
+  setServiceIcon(icon, service);
+
+  // The title link covers the whole card (see .card__title-link in the CSS).
   const title = document.createElement('h3');
   title.className = 'card__title';
-  title.textContent = service.title;
+  const titleLink = document.createElement('a');
+  titleLink.className = 'card__title-link';
+  titleLink.href = serviceUrl(service.slug);
+  titleLink.textContent = service.title;
+  title.append(titleLink);
 
   const text = document.createElement('p');
   text.className = 'card__text';
@@ -181,13 +193,82 @@ function serviceCard(service) {
     item.append(meta);
   }
 
-  const link = document.createElement('a');
-  link.className = 'card__link';
-  link.href = bookingUrl(service.title);
-  link.textContent = 'Book this service';
-  item.append(link);
+  const links = document.createElement('div');
+  links.className = 'card__links';
+  const more = document.createElement('span');
+  more.className = 'card__more';
+  more.setAttribute('aria-hidden', 'true');
+  more.textContent = 'View details →';
+  const book = document.createElement('a');
+  book.className = 'card__link';
+  book.href = bookingUrl(service.title);
+  book.textContent = 'Book this service';
+  links.append(more, book);
+  item.append(links);
 
   return item;
+}
+
+/* Detailed text: a blank line starts a new paragraph, a single newline breaks the line. */
+function renderParagraphs(container, text) {
+  const paragraphs = String(text || '').split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  container.replaceChildren(
+    ...paragraphs.map((paragraph) => {
+      const p = document.createElement('p');
+      paragraph.split('\n').forEach((line, index) => {
+        if (index > 0) p.append(document.createElement('br'));
+        p.append(document.createTextNode(line));
+      });
+      return p;
+    })
+  );
+}
+
+/** The service page: /service?slug=full-numerology-reading */
+function loadServiceDetail() {
+  const page = $('#service-detail');
+  if (!page) return;
+
+  const slug = new URLSearchParams(window.location.search).get('slug');
+
+  const finish = (found) => {
+    page.removeAttribute('aria-busy');
+    $('#service-loading').hidden = true;
+    $('#service-missing').hidden = found;
+    $('#service-content').hidden = !found;
+  };
+
+  if (!slug || !CONFIG.apiBaseUrl) {
+    finish(false);
+    return;
+  }
+
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/services/' + encodeURIComponent(slug))
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then((service) => {
+      document.title = service.title + ' — Lumora Magic';
+      const description = document.querySelector('meta[name="description"]');
+      if (description) description.setAttribute('content', service.description);
+
+      setServiceIcon($('#service-icon'), service);
+      $('#service-title').textContent = service.title;
+      $('#service-description').textContent = service.description;
+
+      if (service.price || service.duration) {
+        $('#service-price').textContent = service.price || '';
+        $('#service-duration').textContent = service.duration || '';
+        $('#service-meta').hidden = false;
+      }
+
+      renderParagraphs($('#service-details'), service.details);
+
+      $('#service-book').href = bookingUrl(service.title);
+      $('#service-whatsapp').href = whatsappLink() + '?text=' +
+        encodeURIComponent('Hello Lumora Magic, I have a question about ' + service.title + '.');
+
+      finish(true);
+    })
+    .catch(() => finish(false));
 }
 
 /**
@@ -573,5 +654,6 @@ initCalculator();
 initBookingForm();
 prefillBooking();
 loadServices();
+loadServiceDetail();
 loadProducts();
 initYear();

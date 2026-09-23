@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Free Life Path Number Calculator — Lumora Magic</title>
-<meta name="description" content="Enter your date of birth to find your life path number and the gifts and lessons it points to.">
+<title>Service — Lumora Magic</title>
+<meta name="description" content="Numerology readings, name and business numerology, lucky dates and spell work for love, protection and prosperity.">
 <meta name="theme-color" content="#3F7A2A">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Lumora Magic">
-<meta property="og:title" content="Free Life Path Number Calculator — Lumora Magic">
-<meta property="og:description" content="Enter your date of birth to find your life path number and the gifts and lessons it points to.">
+<meta property="og:title" content="Service — Lumora Magic">
+<meta property="og:description" content="Numerology readings, name and business numerology, lucky dates and spell work for love, protection and prosperity.">
 <meta property="og:image" content="assets/images/lumora-logo.jpg">
 <meta property="og:image:alt" content="Lumora Magic logo">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Free Life Path Number Calculator — Lumora Magic">
-<meta name="twitter:description" content="Enter your date of birth to find your life path number and the gifts and lessons it points to.">
+<meta name="twitter:title" content="Service — Lumora Magic">
+<meta name="twitter:description" content="Numerology readings, name and business numerology, lucky dates and spell work for love, protection and prosperity.">
 <meta name="twitter:image" content="assets/images/lumora-logo.jpg">
 
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -43,9 +43,9 @@
     <nav class="nav" id="primary-nav" aria-label="Primary">
       <ul class="nav__list">
         <li><a class="nav__link" href="/">Home</a></li>
-        <li><a class="nav__link" href="/services">Services</a></li>
+        <li><a class="nav__link" href="/services" aria-current="page">Services</a></li>
         <li><a class="nav__link" href="/products">Products</a></li>
-        <li><a class="nav__link" href="/life-path" aria-current="page">Life Path</a></li>
+        <li><a class="nav__link" href="/life-path">Life Path</a></li>
         <li><a class="nav__link" href="/how-it-works">How it works</a></li>
         <li><a class="nav__link" href="/about">About</a></li>
       </ul>
@@ -56,40 +56,43 @@
 
 <main id="main">
 
-  <!-- ===================== LIFE PATH CALCULATOR ===================== -->
-  <section class="section" id="life-path">
-    <div class="container">
-      <div class="calc">
-        <div class="calc__intro">
-          <p class="eyebrow">Free · Try it now</p>
-          <h1 class="h2">
-            <span class="h2__serif h2__serif--block">Discover your</span>
-            <span class="script script--h2 script--block">life path number</span>
-          </h1>
-          <p class="calc__text">Enter your date of birth. Your life path number reveals the core lessons and gifts you carry through life.</p>
+  <!-- ===================== SERVICE DETAIL ===================== -->
+  <!-- Filled in by js/main.js from /api/services/<slug>; the slug comes from ?slug= in the address. -->
+  <article class="section service-detail" id="service-detail" aria-busy="true">
+    <div class="container service-detail__inner">
+      <a class="service-detail__back" href="/services">&larr; All services</a>
 
-          <div class="field calc__field">
-            <label class="label" for="dob">Date of birth</label>
-            <input class="input input--lg" type="date" id="dob" name="dob" autocomplete="bday">
-          </div>
-        </div>
+      <div id="service-loading">
+        <p class="service-detail__status">Loading…</p>
+      </div>
 
-        <div class="calc__panel">
-          <div class="result" id="result" aria-live="polite">
-            <div class="result__empty">
-              <span class="result__sparks" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" focusable="false"><path d="M12 1.6c.7 5.2 4.5 9 9.7 9.7-5.2.7-9 4.5-9.7 9.7-.7-5.2-4.5-9-9.7-9.7 5.2-.7 9-4.5 9.7-9.7Z" fill="currentColor"/></svg>
-                <svg width="30" height="30" viewBox="0 0 24 24" focusable="false"><path d="M12 1.6c.7 5.2 4.5 9 9.7 9.7-5.2.7-9 4.5-9.7 9.7-.7-5.2-4.5-9-9.7-9.7 5.2-.7 9-4.5 9.7-9.7Z" fill="currentColor"/></svg>
-                <svg width="18" height="18" viewBox="0 0 24 24" focusable="false"><path d="M12 1.6c.7 5.2 4.5 9 9.7 9.7-5.2.7-9 4.5-9.7 9.7-.7-5.2-4.5-9-9.7-9.7 5.2-.7 9-4.5 9.7-9.7Z" fill="currentColor"/></svg>
-              </span>
-              <p class="result__empty-title">Your number appears here</p>
-              <p class="result__empty-text">A full reading goes much deeper.</p>
-            </div>
-          </div>
+      <div id="service-missing" hidden>
+        <h1 class="h2"><span class="h2__serif">Service not found</span></h1>
+        <p class="service-detail__lede">This service may have been renamed or is no longer offered. Have a look at the full list, or message us on WhatsApp.</p>
+        <a class="btn btn--primary" href="/services">See all services</a>
+      </div>
+
+      <div id="service-content" hidden>
+        <header class="service-detail__head">
+          <span class="card__icon" id="service-icon"></span>
+          <p class="eyebrow">Service</p>
+          <h1 class="h2 service-detail__title" id="service-title"></h1>
+          <p class="service-detail__meta" id="service-meta" hidden>
+            <span class="card__price" id="service-price"></span>
+            <span class="card__duration" id="service-duration"></span>
+          </p>
+          <p class="service-detail__lede" id="service-description"></p>
+        </header>
+
+        <div class="service-detail__body" id="service-details"></div>
+
+        <div class="service-detail__actions">
+          <a class="btn btn--primary" id="service-book" href="/book">Book this service</a>
+          <a class="btn btn--secondary" id="service-whatsapp" href="https://wa.me/" target="_blank" rel="noopener">Ask on WhatsApp</a>
         </div>
       </div>
     </div>
-  </section>
+  </article>
 
 </main>
 

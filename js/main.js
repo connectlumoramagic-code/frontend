@@ -1176,6 +1176,205 @@ function initMarquee() {
   strip.classList.add('numbers--marquee');
 }
 
+/* Golden glitter flight in the hero: a glowing head sweeps along a looping
+   path and sheds gold dust that drifts, twinkles and fades, with soft
+   out-of-focus bokeh among it. Pauses off screen; still for reduced motion. */
+
+// Deep to light golds as "r,g,b" — deep enough to read on the cream hero.
+const GLITTER_GOLDS = ['176,122,20', '201,148,38', '212,167,44', '226,178,62', '240,196,92', '246,214,140'];
+
+/** A soft round sprite per colour, drawn once and stamped for every glow and bokeh. */
+function glitterSprite(rgb, size = 64) {
+  const sprite = document.createElement('canvas');
+  sprite.width = sprite.height = size;
+  const g = sprite.getContext('2d');
+  const gradient = g.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  gradient.addColorStop(0, `rgba(${rgb},1)`);
+  gradient.addColorStop(0.35, `rgba(${rgb},0.55)`);
+  gradient.addColorStop(1, `rgba(${rgb},0)`);
+  g.fillStyle = gradient;
+  g.fillRect(0, 0, size, size);
+  return sprite;
+}
+
+function initGlitter() {
+  $$('canvas.glitter').forEach((canvas) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const still = reducedMotion();
+    const sprites = GLITTER_GOLDS.map((rgb) => glitterSprite(rgb));
+    let particles = [];
+    let width = 0;
+    let height = 0;
+    let visible = false;
+    let frame = 0;
+    let last = 0;
+    let clock = Math.random() * 20;
+    let head = null;
+
+    // The head's path: a slow, looping swoosh across the box.
+    const pathAt = (t) => ({
+      x: width * (0.5 + 0.38 * Math.sin(t * 0.7)),
+      y: height * (0.5 + 0.26 * Math.sin(t * 1.4 + 0.7)),
+    });
+
+    const maxParticles = () => Math.round(Math.min(1700, (width * height) / 55));
+
+    const emit = (x, y, vx, vy, count) => {
+      for (let i = 0; i < count; i += 1) {
+        const bokeh = Math.random() < 0.1;
+        const angle = Math.random() * Math.PI * 2;
+        const spread = Math.pow(Math.random(), 0.7) * 34;
+        particles.push({
+          x: x + Math.cos(angle) * spread,
+          y: y + Math.sin(angle) * spread,
+          // drift back along the trail, then scatter and settle
+          vx: -vx * (0.05 + Math.random() * 0.15) + (Math.random() - 0.5) * 44,
+          vy: -vy * (0.05 + Math.random() * 0.15) + (Math.random() - 0.5) * 44 + 6,
+          r: bokeh ? 6 + Math.random() * 14 : 0.5 + Math.random() * 2.1,
+          bokeh,
+          color: Math.floor(Math.random() * sprites.length),
+          age: 0,
+          life: bokeh ? 2 + Math.random() * 3 : 1.8 + Math.random() * 3.6,
+          phase: Math.random() * Math.PI * 2,
+          twinkle: 6 + Math.random() * 10,
+        });
+      }
+      const cap = maxParticles();
+      if (particles.length > cap) particles.splice(0, particles.length - cap);
+    };
+
+    // A four-pointed glint, like the site's sparkle icon.
+    const glint = (x, y, size) => {
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.quadraticCurveTo(x, y, x + size, y);
+      ctx.quadraticCurveTo(x, y, x, y + size);
+      ctx.quadraticCurveTo(x, y, x - size, y);
+      ctx.quadraticCurveTo(x, y, x, y - size);
+      ctx.fill();
+    };
+
+    const step = (dt) => {
+      clock += dt;
+      const next = pathAt(clock);
+      if (head) {
+        const vx = (next.x - head.x) / dt;
+        const vy = (next.y - head.y) / dt;
+        // Emit along the segment so a fast head still leaves an even trail.
+        const count = Math.max(3, Math.round(dt * 480));
+        for (let i = 0; i < count; i += 1) {
+          const f = i / count;
+          emit(head.x + (next.x - head.x) * f, head.y + (next.y - head.y) * f, vx, vy, 1);
+        }
+      }
+      head = next;
+
+      for (const p of particles) {
+        p.age += dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vx *= 1 - 1.2 * dt;
+        p.vy = p.vy * (1 - 1.2 * dt) + 5 * dt; // a little gravity: the dust settles
+      }
+      particles = particles.filter((p) => p.age < p.life);
+    };
+
+    function draw(now) {
+      ctx.clearRect(0, 0, width, height);
+      const t = now / 1000;
+
+      // Bokeh first, behind the glitter.
+      for (const p of particles) {
+        if (!p.bokeh) continue;
+        const fade = Math.sin((p.age / p.life) * Math.PI);
+        ctx.globalAlpha = 0.32 * fade;
+        const size = p.r * 2;
+        ctx.drawImage(sprites[p.color], p.x - size / 2, p.y - size / 2, size, size);
+      }
+
+      for (const p of particles) {
+        if (p.bokeh) continue;
+        const life = p.age / p.life;
+        const fade = life < 0.1 ? life / 0.1 : 1 - (life - 0.1) / 0.9;
+        const sparkle = still ? 1 : 0.45 + 0.55 * Math.abs(Math.sin(t * p.twinkle + p.phase));
+        const alpha = Math.max(0, fade * sparkle);
+
+        // soft halo, then the bright grain
+        ctx.globalAlpha = alpha * 0.35;
+        const halo = p.r * 5;
+        ctx.drawImage(sprites[p.color], p.x - halo / 2, p.y - halo / 2, halo, halo);
+
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = `rgb(${GLITTER_GOLDS[p.color]})`;
+        if (p.r > 1.9 && sparkle > 0.8) {
+          glint(p.x, p.y, p.r * 2.4);
+        } else {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // The glowing head of the flight.
+      if (head) {
+        ctx.globalAlpha = 0.5;
+        ctx.drawImage(sprites[3], head.x - 45, head.y - 45, 90, 90);
+        ctx.globalAlpha = 0.95;
+        ctx.drawImage(sprites[5], head.x - 14, head.y - 14, 28, 28);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function tick(now) {
+      frame = 0;
+      if (!visible || document.hidden) return;
+      const dt = last ? Math.min((now - last) / 1000, 0.05) : 1 / 60;
+      last = now;
+      step(dt);
+      draw(now);
+      frame = requestAnimationFrame(tick);
+    }
+
+    const start = () => {
+      if (still || frame || !visible || document.hidden) return;
+      last = 0;
+      frame = requestAnimationFrame(tick);
+    };
+
+    const resize = () => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      particles = [];
+      head = null;
+      // Run the flight for a few seconds first, so the trail is already
+      // there when the page opens (and is the still picture for reduced motion).
+      for (let i = 0; i < 250; i += 1) step(1 / 50);
+      draw(performance.now());
+    };
+
+    resize();
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        visible = entries[0].isIntersecting;
+        start();
+      }).observe(canvas);
+    } else {
+      visible = true;
+      start();
+    }
+    document.addEventListener('visibilitychange', start);
+  });
+}
+
 /* ---------- Boot ---------- */
 
 applyConfig();
@@ -1190,6 +1389,7 @@ loadProducts();
 loadPractitioners();
 initYear();
 initStarfields();
+initGlitter();
 initHeadline();
 initMarquee();
 initReveal();

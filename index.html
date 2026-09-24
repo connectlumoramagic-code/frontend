@@ -22,8 +22,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Great+Vibes&amp;family=Karla:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20260924-8">
-<script src="js/main.js?v=20260924-6" defer></script>
+<link rel="stylesheet" href="css/styles.css?v=20260924-9">
+<script src="js/main.js?v=20260924-9" defer></script>
 </head>
 <body>
 
@@ -81,59 +81,8 @@
       </div>
 
       <div class="hero__media">
-        <!-- Fairy lights: draped strands that sway, with bulbs twinkling (see .lights in styles.css). -->
-        <div class="lights" aria-hidden="true">
-          <svg viewBox="0 0 400 400" focusable="false">
-            <defs>
-              <radialGradient id="bulb-warm" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#FFF6D6"/><stop offset="1" stop-color="#F2C14E"/></radialGradient>
-              <radialGradient id="glow-warm"><stop offset="0" stop-color="#F2C14E" stop-opacity="0.75"/><stop offset="0.45" stop-color="#F2C14E" stop-opacity="0.25"/><stop offset="1" stop-color="#F2C14E" stop-opacity="0"/></radialGradient>
-              <radialGradient id="bulb-gold" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#FFF1C2"/><stop offset="1" stop-color="#D4A72C"/></radialGradient>
-              <radialGradient id="glow-gold"><stop offset="0" stop-color="#D4A72C" stop-opacity="0.75"/><stop offset="0.45" stop-color="#D4A72C" stop-opacity="0.25"/><stop offset="1" stop-color="#D4A72C" stop-opacity="0"/></radialGradient>
-              <radialGradient id="bulb-peach" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#FFF0DE"/><stop offset="1" stop-color="#F4A96A"/></radialGradient>
-              <radialGradient id="glow-peach"><stop offset="0" stop-color="#F4A96A" stop-opacity="0.75"/><stop offset="0.45" stop-color="#F4A96A" stop-opacity="0.25"/><stop offset="1" stop-color="#F4A96A" stop-opacity="0"/></radialGradient>
-              <radialGradient id="bulb-mint" cx="45%" cy="40%" r="65%"><stop offset="0" stop-color="#F4FFF2"/><stop offset="1" stop-color="#9ED39A"/></radialGradient>
-              <radialGradient id="glow-mint"><stop offset="0" stop-color="#9ED39A" stop-opacity="0.75"/><stop offset="0.45" stop-color="#9ED39A" stop-opacity="0.25"/><stop offset="1" stop-color="#9ED39A" stop-opacity="0"/></radialGradient>
-            </defs>
-            <g class="lights__strand" style="--sway:7.0s;--sway-delay:-0.0s;transform-origin:200px 10px">
-              <path class="lights__wire" d="M-20,10 Q200.0,275.0 420,60"/>
-              <g class="lights__bulb" transform="translate(2.0 35.3)" style="--d:-1.30s;--t:2.73s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(46.0 78.7)" style="--d:-2.60s;--t:2.56s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(90.0 112.5)" style="--d:-2.14s;--t:3.20s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-              <g class="lights__bulb" transform="translate(134.0 136.7)" style="--d:-0.23s;--t:3.52s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(178.0 151.3)" style="--d:-0.15s;--t:3.35s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-peach)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-peach)"/></g>
-              <g class="lights__bulb" transform="translate(222.0 156.3)" style="--d:-0.28s;--t:2.60s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-              <g class="lights__bulb" transform="translate(266.0 151.7)" style="--d:-1.70s;--t:4.22s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-mint)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-mint)"/></g>
-              <g class="lights__bulb" transform="translate(310.0 137.5)" style="--d:-0.50s;--t:2.89s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(354.0 113.7)" style="--d:-2.51s;--t:4.48s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(398.0 80.3)" style="--d:-2.31s;--t:3.27s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-            </g>
-            <g class="lights__strand" style="--sway:8.5s;--sway-delay:-1.7s;transform-origin:200px 105px">
-              <path class="lights__wire" d="M-20,105 Q200.0,397.5 420,130"/>
-              <g class="lights__bulb" transform="translate(2.0 132.8)" style="--d:-3.91s;--t:2.50s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(46.0 180.2)" style="--d:-3.43s;--t:3.04s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-peach)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-peach)"/></g>
-              <g class="lights__bulb" transform="translate(90.0 216.2)" style="--d:-0.58s;--t:2.66s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-              <g class="lights__bulb" transform="translate(134.0 241.1)" style="--d:-1.23s;--t:4.20s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-mint)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-mint)"/></g>
-              <g class="lights__bulb" transform="translate(178.0 254.9)" style="--d:-0.72s;--t:3.68s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(222.0 257.3)" style="--d:-2.56s;--t:3.22s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(266.0 248.7)" style="--d:-2.19s;--t:2.54s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-              <g class="lights__bulb" transform="translate(310.0 228.8)" style="--d:-0.24s;--t:2.85s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(354.0 197.6)" style="--d:-2.72s;--t:3.34s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-peach)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-peach)"/></g>
-              <g class="lights__bulb" transform="translate(398.0 155.4)" style="--d:-1.26s;--t:3.69s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-            </g>
-            <g class="lights__strand" style="--sway:6.5s;--sway-delay:-3.4s;transform-origin:200px 190px">
-              <path class="lights__wire" d="M-20,190 Q200.0,430.0 420,230"/>
-              <g class="lights__bulb" transform="translate(4.4 215.3)" style="--d:-1.81s;--t:3.06s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-mint)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-mint)"/></g>
-              <g class="lights__bulb" transform="translate(53.3 257.8)" style="--d:-3.18s;--t:3.94s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(102.2 289.4)" style="--d:-0.98s;--t:3.66s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(151.1 310.1)" style="--d:-2.10s;--t:4.33s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-              <g class="lights__bulb" transform="translate(200.0 320.0)" style="--d:-2.92s;--t:3.03s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-              <g class="lights__bulb" transform="translate(248.9 319.0)" style="--d:-3.92s;--t:2.66s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-peach)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-peach)"/></g>
-              <g class="lights__bulb" transform="translate(297.8 307.2)" style="--d:-1.67s;--t:4.07s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-gold)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-gold)"/></g>
-              <g class="lights__bulb" transform="translate(346.7 284.4)" style="--d:-0.61s;--t:3.48s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-mint)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-mint)"/></g>
-              <g class="lights__bulb" transform="translate(395.6 250.9)" style="--d:-0.16s;--t:3.87s"><circle class="lights__glow" cy="19" r="30" fill="url(#glow-warm)"/><line class="lights__stem" y1="0" y2="6"/><rect class="lights__cap" x="-3.4" y="5" width="6.8" height="5.4" rx="1.4"/><ellipse class="lights__lamp" cy="19" rx="6.6" ry="9" fill="url(#bulb-warm)"/></g>
-            </g>
-          </svg>
-        </div>
+        <!-- Golden glitter flight, drawn by initGlitter() in main.js. -->
+        <canvas class="glitter" aria-hidden="true"></canvas>
 
         <div class="sparkles" aria-hidden="true">
           <svg class="sparkle sparkle--1" width="26" height="26" viewBox="0 0 24 24" focusable="false"><path d="M12 1.6c.7 5.2 4.5 9 9.7 9.7-5.2.7-9 4.5-9.7 9.7-.7-5.2-4.5-9-9.7-9.7 5.2-.7 9-4.5 9.7-9.7Z" fill="currentColor"/></svg>

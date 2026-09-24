@@ -441,7 +441,7 @@ button { font: inherit; }
   width: 100%;
   max-width: 360px;
   margin-inline: auto;
-  aspect-ratio: 1 / 1; /* the wheel is the whole picture, so the box holds its size */
+  aspect-ratio: 1 / 1; /* the fairy lights are the whole picture, so the box holds its size */
 }
 
 @media (min-width: 640px) {
@@ -1272,32 +1272,43 @@ button { font: inherit; }
 
 .hero > .container { position: relative; z-index: 1; }
 
-/* Numerology wheel: three rings turning at different speeds behind the logo. */
+/* Fairy lights: draped strands that sway gently, each bulb twinkling on its own beat. */
 .hero__media { isolation: isolate; }
 
-.wheel {
+.lights {
   position: absolute;
-  inset: -6%;
+  inset: -4%;
   z-index: -1;
   pointer-events: none;
-  color: var(--gold);
 }
 
-.wheel svg { width: 100%; height: 100%; overflow: visible; }
+.lights svg { width: 100%; height: 100%; overflow: visible; }
 
-.wheel__ring { transform-origin: 200px 200px; transform-box: view-box; }
+.lights__strand { transform-box: view-box; animation: lights-sway var(--sway) ease-in-out var(--sway-delay) infinite alternate; }
 
-.wheel__ring--outer { animation: wheel-turn 140s linear infinite; }
+.lights__wire { fill: none; stroke: #6F8F5E; stroke-width: 1.4; stroke-opacity: 0.6; }
 
-.wheel__ring--numbers { animation: wheel-turn 90s linear infinite reverse; }
+.lights__stem { stroke: #6F8F5E; stroke-width: 1; stroke-opacity: 0.6; }
 
-.wheel__ring--star { animation: wheel-turn 60s linear infinite; }
+.lights__cap { fill: #5E7A4E; }
 
-.wheel__names { font: 600 9.5px/1 var(--font-sans); letter-spacing: 3.2px; fill: var(--gold-text); opacity: 0.55; }
+.lights__glow,
+.lights__lamp {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lights-twinkle var(--t) ease-in-out var(--d) infinite;
+}
 
-.wheel__digit { font: 600 18px/1 var(--font-serif); fill: var(--green); opacity: 0.6; text-anchor: middle; dominant-baseline: central; }
+@keyframes lights-sway {
+  from { transform: rotate(-1.2deg); }
+  to   { transform: rotate(1.2deg); }
+}
 
-@keyframes wheel-turn { to { transform: rotate(360deg); } }
+@keyframes lights-twinkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  45%      { opacity: 0.35; transform: scale(0.82); }
+  60%      { opacity: 0.55; transform: scale(0.9); }
+}
 
 /* Headline letters rise into place one after another (split by initHeadline()). */
 .char {
@@ -1415,11 +1426,13 @@ button { font: inherit; }
     opacity: 0.55;
   }
 
-  /* Still versions: letters and sections simply appear, the wheel stays put,
+  /* Still versions: letters and sections simply appear, the fairy lights stay lit and still,
      and the numbers strip goes back to its grid (its copy is hidden). */
   .char,
   .reveal { opacity: 1; transform: none; filter: none; animation: none; }
-  .wheel__ring { animation: none; }
+  .lights__strand,
+  .lights__glow,
+  .lights__lamp { animation: none; }
   .numbers__track { animation: none; width: auto; }
   .numbers__list[aria-hidden="true"] { display: none; }
   .btn--glow { animation: none; }

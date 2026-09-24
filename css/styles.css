@@ -450,28 +450,14 @@ button { font: inherit; }
   box-shadow: var(--shadow-hero);
 }
 
-.hero__logo-fallback {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 24px;
-  text-align: center;
-  background: var(--card);
-  border: 2px dashed var(--soft-line);
-}
+.hero__media picture { display: block; }
 
-.hero__logo-fallback-title {
-  font-weight: 600;
-  color: var(--ink);
-  letter-spacing: 1px;
-}
-
-.hero__logo-fallback-path {
-  font-size: 0.875rem;
-  color: var(--muted);
-  word-break: break-word;
+/* The portrait fills the square frame, keeping the face in view. */
+.hero__photo {
+  display: block;
+  height: auto;
+  object-fit: cover;
+  object-position: 50% 18%;
 }
 
 @media (min-width: 640px) {
@@ -1065,17 +1051,8 @@ button { font: inherit; }
   object-fit: cover;
 }
 
-.about__photo--placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 24px;
-  background: var(--card);
-  border: 2px dashed var(--soft-line);
-  color: var(--muted);
-  letter-spacing: 1px;
-}
+.about__media picture { display: block; }
+.about__photo { display: block; object-position: 50% 20%; }
 
 .about__lede {
   font-size: 1.125rem;

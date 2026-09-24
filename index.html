@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Great+Vibes&amp;family=Karla:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20260924-3">
+<link rel="stylesheet" href="css/styles.css?v=20260924-4">
 <script src="js/main.js?v=20260924-3" defer></script>
 </head>
 <body>
@@ -105,17 +105,12 @@
           </svg>
         </div>
 
-        <!--
-          MISSING FILE: assets/images/lumora-logo.jpg was not supplied with this brief.
-          Once you add it, delete the .hero__logo-fallback block below and use:
-
-          <img class="hero__logo" src="assets/images/lumora-logo.jpg" alt="Lumora Magic logo"
-               width="540" height="540" fetchpriority="high">
-        -->
-        <div class="hero__logo hero__logo-fallback" role="img" aria-label="Placeholder for the Lumora Magic logo image">
-          <span class="hero__logo-fallback-title">[LOGO IMAGE MISSING]</span>
-          <span class="hero__logo-fallback-path">assets/images/lumora-logo.jpg</span>
-        </div>
+        <picture>
+          <source srcset="assets/images/practitioner.webp" type="image/webp">
+          <img class="hero__logo hero__photo" src="assets/images/practitioner.jpg"
+               alt="Lumora Magic's numerologist at a reading table with tarot cards, crystals and candles"
+               width="900" height="1200" fetchpriority="high">
+        </picture>
 
         <div class="sparkles" aria-hidden="true">
           <svg class="sparkle sparkle--1" width="26" height="26" viewBox="0 0 24 24" focusable="false"><path d="M12 1.6c.7 5.2 4.5 9 9.7 9.7-5.2.7-9 4.5-9.7 9.7-.7-5.2-4.5-9-9.7-9.7 5.2-.7 9-4.5 9.7-9.7Z" fill="currentColor"/></svg>

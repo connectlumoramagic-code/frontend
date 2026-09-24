@@ -22,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Great+Vibes&amp;family=Karla:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20260924-3">
+<link rel="stylesheet" href="css/styles.css?v=20260924-4">
 <script src="js/main.js?v=20260924-3" defer></script>
 </head>
 <body>
@@ -60,14 +60,12 @@
   <section class="section about" id="about">
     <div class="container about__inner">
       <div class="about__media">
-        <!--
-          OPTIONAL FILE: if you add assets/images/practitioner.jpg, replace the
-          placeholder below with:
-
-          <img class="about__photo" src="assets/images/practitioner.jpg" alt="[Practitioner Name]"
-               width="520" height="540" loading="lazy">
-        -->
-        <div class="about__photo about__photo--placeholder">[PRACTITIONER PHOTO]</div>
+        <picture>
+          <source srcset="assets/images/practitioner.webp" type="image/webp">
+          <img class="about__photo" src="assets/images/practitioner.jpg"
+               alt="Lumora Magic's numerologist at a reading table with tarot cards, crystals and candles"
+               width="900" height="1200">
+        </picture>
       </div>
 
       <div class="about__text">

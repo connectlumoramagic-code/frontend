@@ -22,8 +22,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&amp;family=Great+Vibes&amp;family=Karla:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20260924-5">
-<script src="js/main.js?v=20260924-3" defer></script>
+<link rel="stylesheet" href="css/styles.css?v=20260924-6">
+<script src="js/main.js?v=20260924-6" defer></script>
 </head>
 <body>
 
@@ -57,39 +57,33 @@
 <main id="main">
 
   <!-- ===================== ABOUT ===================== -->
+  <!--
+    The practitioners come from the API (GET /api/practitioners) and are added
+    in /admin. Until one is added, or if the API can't be reached, this
+    general introduction shows instead.
+  -->
   <section class="section about" id="about">
-    <div class="container about__inner">
-      <div class="about__media">
-        <picture>
-          <source srcset="assets/images/practitioner.webp" type="image/webp">
-          <img class="about__photo" src="assets/images/practitioner.jpg"
-               alt="Lumora Magic's numerologist at a reading table with tarot cards, crystals and candles"
-               width="900" height="1200">
-        </picture>
-      </div>
+    <div class="container about__list" id="practitioners">
+      <article class="about__inner">
+        <div class="about__media">
+          <picture>
+            <source srcset="assets/images/practitioner.webp" type="image/webp">
+            <img class="about__photo" src="assets/images/practitioner.jpg"
+                 alt="A Lumora Magic reading table with tarot cards, crystals and candles"
+                 width="900" height="1200">
+          </picture>
+        </div>
 
-      <div class="about__text">
-        <p class="eyebrow">About Lumora Magic</p>
-        <h1 class="h2"><span class="h2__serif">Hello, I&rsquo;m</span> <span class="script script--h2">[Practitioner Name]</span></h1>
-        <p class="about__lede">[A short introduction — how you came to numerology and spell work, your tradition or training, and what clients can expect when working with you.]</p>
+        <div class="about__text">
+          <p class="eyebrow">About Lumora Magic</p>
+          <h1 class="h2"><span class="h2__serif">Hello from</span> <span class="script script--h2">Lumora Magic</span></h1>
+          <div class="about__lede">
+            <p>Numerology readings and gentle spell work, rooted in your birth date and your name and prepared with care for each person who comes to us.</p>
+          </div>
 
-        <dl class="stats">
-          <div class="stat">
-            <dt class="stat__value">[00]</dt>
-            <dd class="stat__label">Years of practice</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat__value">[000]</dt>
-            <dd class="stat__label">Readings given</dd>
-          </div>
-          <div class="stat">
-            <dt class="stat__value">[Lang]</dt>
-            <dd class="stat__label">Languages</dd>
-          </div>
-        </dl>
-
-        <p class="section__cta section__cta--start"><a class="btn btn--primary" href="/book">Book a consultation</a></p>
-      </div>
+          <p class="section__cta section__cta--start"><a class="btn btn--primary" href="/book">Book a consultation</a></p>
+        </div>
+      </article>
     </div>
   </section>
 

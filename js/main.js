@@ -561,6 +561,149 @@ function loadProducts() {
     });
 }
 
+/* ---------- About: practitioners ---------- */
+
+/** Two letters for a practitioner without a photo. */
+function initials(name) {
+  return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0].toUpperCase()).join('');
+}
+
+function practitionerBlock(person, index, isOnly) {
+  const article = document.createElement('article');
+  article.className = index % 2 === 1 ? 'about__inner about__inner--flip' : 'about__inner';
+
+  const media = document.createElement('div');
+  media.className = 'about__media';
+  if (person.photo) {
+    const img = document.createElement('img');
+    img.className = 'about__photo';
+    img.src = person.photo;
+    img.alt = person.name;
+    img.width = 900;
+    img.height = 1200;
+    if (index > 0) img.loading = 'lazy';
+    media.append(img);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'about__photo about__photo--initials';
+    placeholder.setAttribute('aria-hidden', 'true');
+    placeholder.textContent = initials(person.name);
+    media.append(placeholder);
+  }
+
+  const text = document.createElement('div');
+  text.className = 'about__text';
+
+  // One practitioner: the page's own "Hello, I'm …" heading.
+  // Several: the page heading sits above, and each name is a sub-heading.
+  const heading = document.createElement(isOnly ? 'h1' : 'h2');
+  heading.className = 'h2';
+  if (isOnly) {
+    const eyebrow = document.createElement('p');
+    eyebrow.className = 'eyebrow';
+    eyebrow.textContent = 'About Lumora Magic';
+    text.append(eyebrow);
+
+    const hello = document.createElement('span');
+    hello.className = 'h2__serif';
+    hello.textContent = 'Hello, I’m';
+    heading.append(hello, ' ');
+  }
+  const name = document.createElement('span');
+  name.className = 'script script--h2';
+  name.textContent = person.name;
+  heading.append(name);
+  text.append(heading);
+
+  if (person.role) {
+    const role = document.createElement('p');
+    role.className = 'about__role';
+    role.textContent = person.role;
+    text.append(role);
+  }
+
+  const bio = document.createElement('div');
+  bio.className = 'about__lede';
+  renderParagraphs(bio, person.bio);
+  text.append(bio);
+
+  const stats = [
+    [person.years, 'Years of practice'],
+    [person.readings, 'Readings given'],
+    [person.languages, 'Languages'],
+  ].filter(([value]) => value);
+
+  if (stats.length) {
+    const list = document.createElement('dl');
+    list.className = 'stats';
+    for (const [value, label] of stats) {
+      const stat = document.createElement('div');
+      stat.className = 'stat';
+      const dt = document.createElement('dt');
+      dt.className = 'stat__value';
+      dt.textContent = value;
+      const dd = document.createElement('dd');
+      dd.className = 'stat__label';
+      dd.textContent = label;
+      stat.append(dt, dd);
+      list.append(stat);
+    }
+    text.append(list);
+  }
+
+  const cta = document.createElement('p');
+  cta.className = 'section__cta section__cta--start';
+  const link = document.createElement('a');
+  link.className = 'btn btn--primary';
+  link.href = '/book';
+  link.textContent = isOnly ? 'Book a consultation' : 'Book with ' + person.name.split(/\s+/)[0];
+  cta.append(link);
+  text.append(cta);
+
+  article.append(media, text);
+  return article;
+}
+
+/** Replaces the About page's general introduction with the practitioners from /admin. */
+function loadPractitioners() {
+  const list = document.getElementById('practitioners');
+  if (!list || !CONFIG.apiBaseUrl) return;
+
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/practitioners')
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then(({ items }) => {
+      // Nothing added yet: the general introduction stays.
+      if (!Array.isArray(items) || items.length === 0) return;
+
+      const isOnly = items.length === 1;
+      const blocks = items.map((person, index) => practitionerBlock(person, index, isOnly));
+
+      if (!isOnly) {
+        const head = document.createElement('div');
+        head.className = 'section__head section__head--center about__head';
+        const eyebrow = document.createElement('p');
+        eyebrow.className = 'eyebrow';
+        eyebrow.textContent = 'About Lumora Magic';
+        const heading = document.createElement('h1');
+        heading.className = 'h2';
+        const serif = document.createElement('span');
+        serif.className = 'h2__serif';
+        serif.textContent = 'Meet the';
+        const script = document.createElement('span');
+        script.className = 'script script--h2';
+        script.textContent = 'practitioners';
+        heading.append(serif, ' ', script);
+        head.append(eyebrow, heading);
+        blocks.unshift(head);
+      }
+
+      list.replaceChildren(...blocks);
+    })
+    .catch(() => {
+      /* the general introduction stays */
+    });
+}
+
 /* ---------- 3. Life path calculator ---------- */
 
 function reduceToLifePath(digits) {
@@ -1044,6 +1187,7 @@ prefillBooking();
 loadServices();
 loadItemPage();
 loadProducts();
+loadPractitioners();
 initYear();
 initStarfields();
 initHeadline();

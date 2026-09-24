@@ -1064,8 +1064,35 @@ button { font: inherit; }
 
 .stat__label { font-size: 0.875rem; color: var(--body); margin: 0; }
 
+/* Several practitioners stack, each photo on the other side from the last. */
+.about__list { display: grid; gap: 96px; }
+
+.about__lede > p + p { margin-top: 1em; }
+
+.about__role {
+  margin: -8px 0 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold-text);
+}
+
+.about__photo--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 1px solid var(--soft-line);
+  font-family: var(--font-serif);
+  font-size: 6rem;
+  font-weight: 600;
+  color: var(--green);
+}
+
 @media (min-width: 1024px) {
   .about__inner { grid-template-columns: 1fr 1fr; gap: 96px; align-items: center; }
+  .about__inner--flip .about__media { order: 2; }
   .about__photo { height: 540px; }
 }
 

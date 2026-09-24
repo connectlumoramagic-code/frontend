@@ -441,23 +441,7 @@ button { font: inherit; }
   width: 100%;
   max-width: 360px;
   margin-inline: auto;
-}
-
-.hero__logo {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 36px;
-  box-shadow: var(--shadow-hero);
-}
-
-.hero__media picture { display: block; }
-
-/* The portrait fills the square frame, keeping the face in view. */
-.hero__photo {
-  display: block;
-  height: auto;
-  object-fit: cover;
-  object-position: 50% 18%;
+  aspect-ratio: 1 / 1; /* the wheel is the whole picture, so the box holds its size */
 }
 
 @media (min-width: 640px) {
@@ -1266,7 +1250,7 @@ button { font: inherit; }
 
 .wheel {
   position: absolute;
-  inset: -34%;
+  inset: -6%;
   z-index: -1;
   pointer-events: none;
   color: var(--gold);

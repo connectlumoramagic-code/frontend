@@ -1109,7 +1109,7 @@ button { font: inherit; }
 .promise__text { font-size: 0.9688rem; }
 
 /* Phones: the home page's services become a swipeable row (the next card
-   peeks in), and the promises become compact icon-and-text rows. */
+   peeks in), and the promises become a 2 × 2 grid of tiles. */
 @media (max-width: 639.98px) {
   .cards--swipe {
     grid-template-columns: none;
@@ -1127,16 +1127,19 @@ button { font: inherit; }
   .cards--swipe::-webkit-scrollbar { display: none; }
   .cards--swipe > li { scroll-snap-align: start; }
 
-  .promises { gap: 12px; margin-top: 40px; }
+  .promises { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 40px; }
   .promise__item {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 16px;
-    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 14px;
+    border-radius: 20px;
   }
-  .promise__icon { grid-row: span 2; width: 44px; height: 44px; margin-bottom: 0; }
+  .promise__icon { width: 44px; height: 44px; margin-bottom: 12px; }
   .promise__icon svg { width: 22px; height: 22px; }
-  .promise__title { margin-bottom: 4px; }
+  .promise__title { font-size: 1rem; margin-bottom: 6px; }
+  .promise__text { font-size: 0.8125rem; line-height: 1.5; }
 }
 
 @media (min-width: 640px) {

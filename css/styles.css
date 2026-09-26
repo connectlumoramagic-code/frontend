@@ -581,12 +581,28 @@ button { font: inherit; }
 
 .hero__note svg { flex: none; color: var(--green); }
 
+/* A soft cream halo keeps the smaller hero text readable as the glitter passes behind it. */
+.hero__lede,
+.hero__note { text-shadow: 0 0 6px var(--cream), 0 0 12px var(--cream), 0 0 18px var(--cream); }
+
 .hero__media {
   position: relative;
   width: 100%;
   max-width: 360px;
   margin-inline: auto;
   aspect-ratio: 1 / 1; /* the glitter is the whole picture, so the box holds its size */
+}
+
+/* Phones: a tighter hero, with the tagline on one line and slimmer buttons. */
+@media (max-width: 639.98px) {
+  .hero { padding-block: 28px 36px; }
+  .hero .eyebrow { font-size: 0.6875rem; letter-spacing: 2px; margin-bottom: 12px; }
+  .hero .h1 { font-size: 2.375rem; }
+  .hero .h1__script { font-size: 3rem; }
+  .hero__lede { font-size: 0.9375rem; line-height: 1.55; margin: 14px 0 20px; }
+  .hero__actions { gap: 10px; }
+  .hero__actions .btn { min-height: 46px; font-size: 0.9375rem; }
+  .hero__note { margin-top: 14px; font-size: 0.8125rem; }
 }
 
 /* Phones and tablets: the small sparkles sit beside the headline, behind

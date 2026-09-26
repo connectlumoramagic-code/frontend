@@ -869,6 +869,73 @@ function loadTestimonials() {
     });
 }
 
+/* ---------- Logo butterfly ---------- */
+
+const BUTTERFLY_DUST = ['#FFFFFF', '#FFD6EB', '#FF9ACD', '#FFE9A8'];
+
+/**
+ * Adds the 3D glitter butterfly to the header logo (styled in styles.css).
+ * While its flight animation has it perched, it gets is-resting so its wings
+ * slow down; while it flies, it leaves a trail of glitter dust.
+ */
+function initButterfly() {
+  const wordmark = $('.header .wordmark');
+  if (!wordmark) return;
+
+  const butterfly = document.createElement('span');
+  butterfly.className = 'butterfly';
+  butterfly.setAttribute('aria-hidden', 'true');
+  butterfly.innerHTML =
+    '<span class="butterfly__tilt">' +
+    '<span class="butterfly__wing butterfly__wing--left"></span>' +
+    '<span class="butterfly__wing butterfly__wing--right"></span>' +
+    '<span class="butterfly__body"></span>' +
+    '</span>';
+  wordmark.append(butterfly);
+
+  if (reducedMotion() || typeof butterfly.getAnimations !== 'function') {
+    butterfly.classList.add('is-resting');
+    return;
+  }
+
+  const tilt = $('.butterfly__tilt', butterfly);
+  const DELAY = 2000;
+  const CYCLE = 20000;
+
+  const dust = () => {
+    const box = tilt.getBoundingClientRect();
+    const grain = document.createElement('span');
+    const size = 2 + Math.random() * 2.5;
+    const colour = BUTTERFLY_DUST[Math.floor(Math.random() * BUTTERFLY_DUST.length)];
+    grain.className = 'butterfly-dust';
+    grain.style.left = box.left + box.width * (0.3 + Math.random() * 0.4) + 'px';
+    grain.style.top = box.top + box.height * (0.4 + Math.random() * 0.4) + 'px';
+    grain.style.width = grain.style.height = size + 'px';
+    grain.style.background = colour;
+    grain.style.boxShadow = '0 0 ' + (size * 1.6) + 'px ' + colour;
+    grain.style.setProperty('--dx', (Math.random() * 20 - 10).toFixed(1) + 'px');
+    grain.addEventListener('animationend', () => grain.remove());
+    document.body.append(grain);
+  };
+
+  let lastDust = 0;
+  const loop = (now) => {
+    const flight = butterfly.getAnimations().find((a) => a.animationName === 'butterfly-flight');
+    if (flight && !document.hidden) {
+      const t = Number(flight.currentTime) - DELAY;
+      const phase = t < 0 ? 0 : (t % CYCLE) / CYCLE;
+      const resting = t < 0 || (phase >= 0.35 && phase < 0.8);
+      butterfly.classList.toggle('is-resting', resting);
+      if (!resting && phase > 0.02 && phase < 0.97 && now - lastDust > 60) {
+        lastDust = now;
+        dust();
+      }
+    }
+    requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+}
+
 /* ---------- 3. Life path calculator ---------- */
 
 function reduceToLifePath(digits) {
@@ -1560,6 +1627,7 @@ loadTestimonials();
 initYear();
 initStarfields();
 initGlitter();
+initButterfly();
 initHeadline();
 initMarquee();
 initReveal();

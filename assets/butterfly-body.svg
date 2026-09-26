@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 80">
+  <!-- Dark pink glitter butterfly: body and antennae. -->
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#1A0510"/>
+      <stop offset="0.45" stop-color="#6E1A45"/>
+      <stop offset="1" stop-color="#1A0510"/>
+    </linearGradient>
+  </defs>
+  <path d="M13.8 22 C11 14 7 7 2.5 3.5 M16.2 22 C19 14 23 7 27.5 3.5" fill="none" stroke="#2A0818" stroke-width="0.9" stroke-linecap="round"/>
+  <circle cx="2.5" cy="3.5" r="1.4" fill="#FFB3D9"/>
+  <circle cx="27.5" cy="3.5" r="1.4" fill="#FFB3D9"/>
+  <ellipse cx="15" cy="56" rx="2.3" ry="15" fill="url(#b)"/>
+  <ellipse cx="15" cy="36" rx="3.2" ry="7" fill="url(#b)"/>
+  <circle cx="15" cy="26.5" r="3" fill="url(#b)"/>
+  <circle cx="13.8" cy="25.6" r="0.8" fill="#FF9ACD"/>
+  <circle cx="16.2" cy="25.6" r="0.8" fill="#FF9ACD"/>
+</svg>

@@ -1475,21 +1475,21 @@ function initGlitter() {
     });
 
     // Bigger heroes get a wider, fuller trail.
-    const scale = () => Math.min(1.8, Math.max(1, width / 700));
+    const scale = () => Math.min(1.5, Math.max(0.55, width / 800));
     const maxParticles = () => Math.round(Math.min(3200, (width * height) / 90));
 
     const emit = (x, y, vx, vy, count) => {
       for (let i = 0; i < count; i += 1) {
-        const bokeh = Math.random() < 0.1;
+        const bokeh = Math.random() < 0.04;
         const angle = Math.random() * Math.PI * 2;
-        const spread = Math.pow(Math.random(), 0.7) * 34 * scale();
+        const spread = Math.pow(Math.random(), 1.3) * 14 * scale();
         particles.push({
           x: x + Math.cos(angle) * spread,
           y: y + Math.sin(angle) * spread,
           // drift back along the trail, then scatter and settle
-          vx: -vx * (0.05 + Math.random() * 0.15) + (Math.random() - 0.5) * 44,
-          vy: -vy * (0.05 + Math.random() * 0.15) + (Math.random() - 0.5) * 44 + 6,
-          r: bokeh ? 6 + Math.random() * 14 : 0.5 + Math.random() * 2.1,
+          vx: -vx * (0.05 + Math.random() * 0.15) + (Math.random() - 0.5) * 20,
+          vy: -vy * (0.05 + Math.random() * 0.15) + (Math.random() - 0.5) * 20 + 6,
+          r: bokeh ? 4 + Math.random() * 6 : 0.4 + Math.random() * 1.6,
           bokeh,
           color: Math.floor(Math.random() * sprites.length),
           age: 0,
@@ -1520,7 +1520,7 @@ function initGlitter() {
         const vx = (next.x - head.x) / dt;
         const vy = (next.y - head.y) / dt;
         // Emit along the segment so a fast head still leaves an even trail.
-        const count = Math.max(3, Math.round(dt * 480 * scale()));
+        const count = Math.max(2, Math.round(dt * 360 * scale()));
         for (let i = 0; i < count; i += 1) {
           const f = i / count;
           emit(head.x + (next.x - head.x) * f, head.y + (next.y - head.y) * f, vx, vy, 1);
@@ -1577,9 +1577,9 @@ function initGlitter() {
       // The glowing head of the flight.
       if (head) {
         ctx.globalAlpha = 0.5;
-        ctx.drawImage(sprites[3], head.x - 45, head.y - 45, 90, 90);
+        ctx.drawImage(sprites[3], head.x - 28, head.y - 28, 56, 56);
         ctx.globalAlpha = 0.95;
-        ctx.drawImage(sprites[5], head.x - 14, head.y - 14, 28, 28);
+        ctx.drawImage(sprites[5], head.x - 10, head.y - 10, 20, 20);
       }
       ctx.globalAlpha = 1;
     }

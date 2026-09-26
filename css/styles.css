@@ -30,6 +30,7 @@
   --result-bg: #FFFDF6;
   --result-line: #E9E2B8;
   --wordmark-sub: #4B6B3A;
+  --wordmark-face: #5AA23A;
   --footer: #2C4A2F;
   --footer-text: #EAF3E4;
   --footer-muted: #C4D6BD;
@@ -322,8 +323,8 @@ button { font: inherit; }
      would otherwise be cut off by the clip and the shine. */
   padding: 0.1em 0.18em;
   margin: -0.1em -0.18em;
-  background: linear-gradient(100deg, var(--green) 42%, var(--gold) 50%, #F2D98A 52%, var(--green) 60%) 120% 0 / 300% 100% no-repeat;
-  background-color: var(--green);
+  background: linear-gradient(100deg, var(--wordmark-face) 42%, var(--gold) 50%, #F2D98A 52%, var(--wordmark-face) 60%) 120% 0 / 300% 100% no-repeat;
+  background-color: var(--wordmark-face);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -360,13 +361,11 @@ button { font: inherit; }
 
 .wordmark__script {
   filter:
-    drop-shadow(0.5px 0.75px 0.35px var(--green-dark))
-    drop-shadow(0.5px 0.75px 0.35px var(--green-dark))
-    drop-shadow(0.5px 0.75px 0.35px var(--green-dark))
-    drop-shadow(0.5px 0.75px 0.35px var(--green-dark))
-    drop-shadow(0.5px 0.75px 0.35px var(--green-dark))
-    drop-shadow(0.5px 0.75px 0.35px var(--green-dark))
-    drop-shadow(2px 5px 5px rgba(122, 92, 12, 0.35));
+    drop-shadow(0.5px 0.75px 0.35px var(--green))
+    drop-shadow(0.5px 0.75px 0.35px var(--green))
+    drop-shadow(0.5px 0.75px 0.35px var(--green))
+    drop-shadow(0.5px 0.75px 0.35px var(--green))
+    drop-shadow(2px 4px 5px rgba(122, 92, 12, 0.2));
 }
 
 .wordmark__sub {

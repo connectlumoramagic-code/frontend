@@ -142,6 +142,7 @@ button { font: inherit; }
 
 .section { padding-block: var(--space-section); }
 
+
 /* Booking button closing a page section. */
 .section__cta { margin-top: 48px; text-align: center; }
 .section__cta--start { margin-top: 32px; text-align: left; }
@@ -1169,7 +1170,7 @@ button { font: inherit; }
 
 /* Phones: smaller review cards, about one and a half in view. */
 @media (max-width: 639.98px) {
-  .reviews { margin-top: 28px; }
+
   .reviews__track { grid-auto-columns: 62%; gap: 12px; }
   .reviews .card { padding: 14px 16px; border-radius: 16px; }
   .reviews .quote__sparks { gap: 4px; margin-bottom: 8px; }
@@ -1260,7 +1261,7 @@ button { font: inherit; }
   }
   .cards--swipe::-webkit-scrollbar { display: none; }
   .cards--swipe > li { scroll-snap-align: start; }
-  .cards--swipe { grid-auto-columns: 74%; gap: 12px; margin-top: 32px; }
+  .cards--swipe { grid-auto-columns: 74%; gap: 12px; margin-top: 24px; }
   .cards--swipe .card { padding: 18px 16px 12px; border-radius: 18px; }
   .cards--swipe .card__icon { width: 40px; height: 40px; border-radius: 12px; margin-bottom: 12px; }
   .cards--swipe .card__icon svg { width: 22px; height: 22px; }
@@ -1271,8 +1272,7 @@ button { font: inherit; }
   .cards--swipe .card__more { font-size: 0.8125rem; }
   .cards--swipe .card__link { min-height: 36px; }
 
-  .promise { padding-block: 48px; }
-  .promises { grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 28px; }
+  .promises { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .promise__item { padding: 14px 12px; border-radius: 16px; }
   .promise__icon { width: 32px; height: 32px; margin-bottom: 8px; }
   .promise__icon svg { width: 17px; height: 17px; }
@@ -1428,7 +1428,7 @@ button { font: inherit; }
     position: relative;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    margin-top: 40px;
+    margin-top: 24px;
   }
   .steps::before {
     content: "";
@@ -1823,7 +1823,7 @@ button { font: inherit; }
 
 /* Phones: a tighter panel, with the two buttons side by side. */
 @media (max-width: 639.98px) {
-  .cta-band { padding-block: 32px; }
+
   .cta-band__panel { border-radius: 22px; }
   .cta-band__inner { gap: 16px; padding: 22px 18px; }
   .cta-band__title { font-size: 1.75rem; }
@@ -1882,4 +1882,24 @@ button { font: inherit; }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Phones: less space between and inside sections, so pages don't have big
+   empty gaps. Kept last so it wins over the rules above. */
+@media (max-width: 639.98px) {
+  :root { --space-section: 2.75rem; }
+  .section__cta { margin-top: 24px; }
+  .section__head { gap: 8px; }
+  .section__head .eyebrow { margin-bottom: 6px; }
+  .section__head .h2 { margin-bottom: 0; }
+  .section__head-text { font-size: 0.9375rem; }
+  .cards { margin-top: 24px; }
+  .steps { margin-top: 24px; }
+  .promises { margin-top: 20px; }
+  .reviews { margin-top: 20px; }
+  .numbers { padding-block: 24px; }
+  .numbers__list { gap: 16px 12px; }
+  .numbers__digit { font-size: 2.25rem; }
+  .numbers__label { font-size: 0.75rem; }
+  .cta-band { padding-block: 24px; }
 }

@@ -1306,19 +1306,22 @@ function initGlitter() {
     let clock = Math.random() * 20;
     let head = null;
 
-    // The head's path: a slow, looping swoosh across the box.
+    // The head's path: a slow wander that, over time, reaches the left,
+    // centre and right of the hero, top to bottom.
     const pathAt = (t) => ({
-      x: width * (0.5 + 0.38 * Math.sin(t * 0.7)),
-      y: height * (0.5 + 0.26 * Math.sin(t * 1.4 + 0.7)),
+      x: width * (0.5 + 0.44 * Math.sin(t * 0.43)),
+      y: height * (0.5 + 0.36 * Math.sin(t * 0.97 + 0.7) * Math.cos(t * 0.21)),
     });
 
-    const maxParticles = () => Math.round(Math.min(1700, (width * height) / 55));
+    // Bigger heroes get a wider, fuller trail.
+    const scale = () => Math.min(1.8, Math.max(1, width / 700));
+    const maxParticles = () => Math.round(Math.min(3200, (width * height) / 90));
 
     const emit = (x, y, vx, vy, count) => {
       for (let i = 0; i < count; i += 1) {
         const bokeh = Math.random() < 0.1;
         const angle = Math.random() * Math.PI * 2;
-        const spread = Math.pow(Math.random(), 0.7) * 34;
+        const spread = Math.pow(Math.random(), 0.7) * 34 * scale();
         particles.push({
           x: x + Math.cos(angle) * spread,
           y: y + Math.sin(angle) * spread,
@@ -1356,7 +1359,7 @@ function initGlitter() {
         const vx = (next.x - head.x) / dt;
         const vy = (next.y - head.y) / dt;
         // Emit along the segment so a fast head still leaves an even trail.
-        const count = Math.max(3, Math.round(dt * 480));
+        const count = Math.max(3, Math.round(dt * 480 * scale()));
         for (let i = 0; i < count; i += 1) {
           const f = i / count;
           emit(head.x + (next.x - head.x) * f, head.y + (next.y - head.y) * f, vx, vy, 1);

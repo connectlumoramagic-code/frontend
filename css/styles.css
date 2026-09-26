@@ -1539,6 +1539,18 @@ button { font: inherit; }
 
 .footer__copy { font-size: 0.8125rem; color: var(--footer-muted); }
 
+/* Phones: a compact, centred footer. */
+@media (max-width: 639.98px) {
+  .footer { padding-block: 28px 22px; text-align: center; }
+  .footer__top { gap: 10px; margin-bottom: 16px; justify-items: center; }
+  .footer__script { font-size: 1.75rem; }
+  .footer__sub { font-size: 0.6875rem; letter-spacing: 4px; text-indent: 4px; }
+  .footer__list { justify-content: center; gap: 0 18px; }
+  .footer__link { min-height: 36px; font-size: 0.875rem; }
+  .footer__disclaimer { font-size: 0.6875rem; line-height: 1.5; margin: 0 auto 8px; }
+  .footer__copy { font-size: 0.6875rem; }
+}
+
 @media (min-width: 640px) {
   .footer__top {
     grid-template-columns: auto 1fr;

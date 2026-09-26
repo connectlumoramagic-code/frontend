@@ -779,6 +779,85 @@ function testimonialCard(testimonial) {
   return item;
 }
 
+/**
+ * Turns the reviews into a slideshow: the track scrolls sideways (so swiping
+ * works natively), arrows and dots move it a review at a time, and it moves
+ * on by itself every few seconds unless someone is reading or using it.
+ */
+function initReviewSlider(track) {
+  const root = track.closest('.reviews');
+  const controls = $('.reviews__controls', root);
+  const dots = $('.reviews__dots', root);
+  const slides = Array.from(track.children);
+
+  slides.forEach((slide, i) => {
+    slide.setAttribute('role', 'group');
+    slide.setAttribute('aria-roledescription', 'slide');
+    slide.setAttribute('aria-label', `${i + 1} of ${slides.length}`);
+  });
+
+  const step = () => (slides[1] ? slides[1].offsetLeft - slides[0].offsetLeft : track.clientWidth);
+  const perView = () => Math.max(1, Math.round(track.clientWidth / step()));
+  const pages = () => Math.max(1, slides.length - perView() + 1);
+  const current = () => Math.min(pages() - 1, Math.round(track.scrollLeft / step()));
+
+  const markDots = (active = current()) => {
+    Array.from(dots.children).forEach((dot, i) => dot.setAttribute('aria-current', String(i === active)));
+  };
+
+  const goTo = (index) => {
+    const count = pages();
+    const target = ((index % count) + count) % count;
+    markDots(target);
+    track.scrollTo({ left: target * step(), behavior: reducedMotion() ? 'auto' : 'smooth' });
+  };
+
+  const buildDots = () => {
+    const count = pages();
+    controls.hidden = count < 2;
+    dots.replaceChildren(
+      ...Array.from({ length: count }, (_, i) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'reviews__dot';
+        dot.setAttribute('aria-label', `Show review ${i + 1}`);
+        dot.addEventListener('click', () => goTo(i));
+        return dot;
+      })
+    );
+    markDots();
+  };
+
+  $$('.reviews__arrow', root).forEach((arrow) => {
+    arrow.addEventListener('click', () => goTo(current() + Number(arrow.dataset.dir)));
+  });
+
+  // After a swipe, the dot follows where the track came to rest.
+  let settle = 0;
+  track.addEventListener('scroll', () => {
+    clearTimeout(settle);
+    settle = setTimeout(() => markDots(), 120);
+  }, { passive: true });
+
+  buildDots();
+  if ('ResizeObserver' in window) new ResizeObserver(buildDots).observe(track);
+
+  // Moves on by itself, pausing while the pointer, a finger or the keyboard is on it.
+  if (reducedMotion()) return;
+  let paused = false;
+  const pause = () => { paused = true; };
+  const resume = () => { paused = false; };
+  root.addEventListener('mouseenter', pause);
+  root.addEventListener('mouseleave', resume);
+  root.addEventListener('focusin', pause);
+  root.addEventListener('focusout', resume);
+  root.addEventListener('touchstart', pause, { passive: true });
+  root.addEventListener('touchend', () => setTimeout(resume, 4000), { passive: true });
+  setInterval(() => {
+    if (!paused && !document.hidden && pages() > 1) goTo(current() + 1);
+  }, 6000);
+}
+
 /** "Words from clients" on the home page: Reviews from /admin, hidden until there is one. */
 function loadTestimonials() {
   const list = document.getElementById('testimonial-cards');
@@ -791,6 +870,7 @@ function loadTestimonials() {
       if (!Array.isArray(items) || items.length === 0) return;
       list.replaceChildren(...items.map(testimonialCard));
       section.hidden = false;
+      initReviewSlider(list);
     })
     .catch(() => {
       /* the section stays hidden */

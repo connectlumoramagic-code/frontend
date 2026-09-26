@@ -780,82 +780,74 @@ function testimonialCard(testimonial) {
 }
 
 /**
- * Turns the reviews into a slideshow: the track scrolls sideways (so swiping
- * works natively), arrows and dots move it a review at a time, and it moves
- * on by itself every few seconds unless someone is reading or using it.
+ * Keeps the reviews gliding sideways without stopping. The reviews are
+ * repeated (the copies hidden from screen readers) so that, once a full set
+ * has passed, the row jumps back by exactly one set and nobody sees the seam.
+ * The row is an ordinary scrolling box, so it can still be swiped; it pauses
+ * while the pointer or a finger is on it, and stays still for reduced motion.
  */
 function initReviewSlider(track) {
-  const root = track.closest('.reviews');
-  const controls = $('.reviews__controls', root);
-  const dots = $('.reviews__dots', root);
-  const slides = Array.from(track.children);
+  const originals = Array.from(track.children);
+  if (originals.length === 0 || reducedMotion()) return;
 
-  slides.forEach((slide, i) => {
-    slide.setAttribute('role', 'group');
-    slide.setAttribute('aria-roledescription', 'slide');
-    slide.setAttribute('aria-label', `${i + 1} of ${slides.length}`);
-  });
-
-  const step = () => (slides[1] ? slides[1].offsetLeft - slides[0].offsetLeft : track.clientWidth);
-  const perView = () => Math.max(1, Math.round(track.clientWidth / step()));
-  const pages = () => Math.max(1, slides.length - perView() + 1);
-  const current = () => Math.min(pages() - 1, Math.round(track.scrollLeft / step()));
-
-  const markDots = (active = current()) => {
-    Array.from(dots.children).forEach((dot, i) => dot.setAttribute('aria-current', String(i === active)));
+  let setWidth = 0;
+  const fill = () => {
+    $$('[data-clone]', track).forEach((clone) => clone.remove());
+    const addSet = () => originals.forEach((slide) => {
+      const clone = slide.cloneNode(true);
+      clone.dataset.clone = '';
+      clone.setAttribute('aria-hidden', 'true');
+      track.append(clone);
+    });
+    addSet();
+    setWidth = track.children[originals.length].offsetLeft - originals[0].offsetLeft;
+    // Enough copies that the row never runs out before it loops.
+    while (track.scrollWidth < setWidth + track.clientWidth * 2) addSet();
   };
+  fill();
+  if ('ResizeObserver' in window) {
+    let width = track.clientWidth;
+    new ResizeObserver(() => {
+      if (track.clientWidth === width) return;
+      width = track.clientWidth;
+      fill();
+    }).observe(track);
+  }
 
-  const goTo = (index) => {
-    const count = pages();
-    const target = ((index % count) + count) % count;
-    markDots(target);
-    track.scrollTo({ left: target * step(), behavior: reducedMotion() ? 'auto' : 'smooth' });
-  };
-
-  const buildDots = () => {
-    const count = pages();
-    controls.hidden = count < 2;
-    dots.replaceChildren(
-      ...Array.from({ length: count }, (_, i) => {
-        const dot = document.createElement('button');
-        dot.type = 'button';
-        dot.className = 'reviews__dot';
-        dot.setAttribute('aria-label', `Show review ${i + 1}`);
-        dot.addEventListener('click', () => goTo(i));
-        return dot;
-      })
-    );
-    markDots();
-  };
-
-  $$('.reviews__arrow', root).forEach((arrow) => {
-    arrow.addEventListener('click', () => goTo(current() + Number(arrow.dataset.dir)));
-  });
-
-  // After a swipe, the dot follows where the track came to rest.
-  let settle = 0;
-  track.addEventListener('scroll', () => {
-    clearTimeout(settle);
-    settle = setTimeout(() => markDots(), 120);
-  }, { passive: true });
-
-  buildDots();
-  if ('ResizeObserver' in window) new ResizeObserver(buildDots).observe(track);
-
-  // Moves on by itself, pausing while the pointer, a finger or the keyboard is on it.
-  if (reducedMotion()) return;
+  const SPEED = 32; // pixels a second
+  let position = track.scrollLeft;
   let paused = false;
+  let visible = true;
+  let last = 0;
+
   const pause = () => { paused = true; };
-  const resume = () => { paused = false; };
-  root.addEventListener('mouseenter', pause);
-  root.addEventListener('mouseleave', resume);
-  root.addEventListener('focusin', pause);
-  root.addEventListener('focusout', resume);
-  root.addEventListener('touchstart', pause, { passive: true });
-  root.addEventListener('touchend', () => setTimeout(resume, 4000), { passive: true });
-  setInterval(() => {
-    if (!paused && !document.hidden && pages() > 1) goTo(current() + 1);
-  }, 6000);
+  const resume = () => {
+    paused = false;
+    position = track.scrollLeft; // carry on from wherever a swipe left it
+  };
+  track.addEventListener('mouseenter', pause);
+  track.addEventListener('mouseleave', resume);
+  track.addEventListener('touchstart', pause, { passive: true });
+  track.addEventListener('touchend', () => setTimeout(resume, 2500), { passive: true });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entries) => { visible = entries[0].isIntersecting; }).observe(track);
+  }
+
+  const tick = (now) => {
+    const dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
+    last = now;
+    if (!paused && visible && !document.hidden && setWidth > 0) {
+      position += SPEED * dt;
+      if (position >= setWidth) position -= setWidth;
+      track.scrollLeft = position;
+    } else if (setWidth > 0 && track.scrollLeft >= setWidth) {
+      // a swipe went past the first set: step back so it can keep going
+      track.scrollLeft -= setWidth;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 /** "Words from clients" on the home page: Reviews from /admin, hidden until there is one. */

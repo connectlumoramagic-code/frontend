@@ -463,7 +463,9 @@ function loadServices() {
     .then(({ items }) => {
       if (!Array.isArray(items) || items.length === 0) return;
 
-      if (cards) cards.replaceChildren(...items.map(serviceCard));
+      // The home page shows only the first few (data-limit).
+      const limit = Number(cards && cards.dataset.limit) || items.length;
+      if (cards) cards.replaceChildren(...items.slice(0, limit).map(serviceCard));
 
       if (select) {
         const chosen = select.value || new URLSearchParams(window.location.search).get('service');
@@ -701,6 +703,97 @@ function loadPractitioners() {
     })
     .catch(() => {
       /* the general introduction stays */
+    });
+}
+
+/**
+ * The home page's "Meet your practitioner": each practitioner with the first
+ * paragraph of their introduction and a link to the About page. The section
+ * stays hidden until one is added in /admin.
+ */
+function loadHomePractitioners() {
+  const list = document.getElementById('home-practitioners');
+  const section = document.getElementById('meet');
+  if (!list || !section || !CONFIG.apiBaseUrl) return;
+
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/practitioners')
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then(({ items }) => {
+      if (!Array.isArray(items) || items.length === 0) return;
+
+      const blocks = items.map((person, index) => {
+        const block = practitionerBlock(person, index, false);
+        $$('.about__lede > p', block).slice(1).forEach((p) => p.remove());
+
+        const more = document.createElement('a');
+        more.className = 'btn btn--secondary';
+        more.href = '/about';
+        more.textContent = 'Read more';
+        $('.section__cta', block).append(' ', more);
+        return block;
+      });
+
+      list.replaceChildren(...blocks);
+      if (items.length > 1) $('#meet-title .script').textContent = 'practitioners';
+      section.hidden = false;
+    })
+    .catch(() => {
+      /* the section stays hidden */
+    });
+}
+
+function testimonialCard(testimonial) {
+  const item = document.createElement('li');
+  item.className = 'cards__cell';
+
+  const figure = document.createElement('figure');
+  figure.className = 'card quote';
+
+  const sparks = document.createElement('span');
+  sparks.className = 'quote__sparks';
+  sparks.setAttribute('aria-hidden', 'true');
+  for (let i = 0; i < 3; i += 1) {
+    sparks.insertAdjacentHTML('beforeend',
+      '<svg width="14" height="14" viewBox="0 0 24 24" focusable="false"><path d="M12 1.6c.7 5.2 4.5 9 9.7 9.7-5.2.7-9 4.5-9.7 9.7-.7-5.2-4.5-9-9.7-9.7 5.2-.7 9-4.5 9.7-9.7Z" fill="currentColor"/></svg>');
+  }
+
+  const quote = document.createElement('blockquote');
+  quote.className = 'quote__text';
+  renderParagraphs(quote, testimonial.quote);
+  const paragraphs = $$('p', quote);
+  paragraphs[0].prepend('“');
+  paragraphs[paragraphs.length - 1].append('”');
+
+  const cite = document.createElement('figcaption');
+  cite.className = 'quote__cite';
+  cite.textContent = [testimonial.name, testimonial.place].filter(Boolean).join(' · ');
+  if (testimonial.service) {
+    const service = document.createElement('span');
+    service.className = 'quote__service';
+    service.textContent = testimonial.service;
+    cite.append(service);
+  }
+
+  figure.append(sparks, quote, cite);
+  item.append(figure);
+  return item;
+}
+
+/** "Words from clients" on the home page: Reviews from /admin, hidden until there is one. */
+function loadTestimonials() {
+  const list = document.getElementById('testimonial-cards');
+  const section = document.getElementById('testimonials');
+  if (!list || !section || !CONFIG.apiBaseUrl) return;
+
+  fetch(CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/testimonials')
+    .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+    .then(({ items }) => {
+      if (!Array.isArray(items) || items.length === 0) return;
+      list.replaceChildren(...items.map(testimonialCard));
+      section.hidden = false;
+    })
+    .catch(() => {
+      /* the section stays hidden */
     });
 }
 
@@ -1141,7 +1234,7 @@ function initHeadline() {
 function initReveal() {
   if (reducedMotion() || !('IntersectionObserver' in window)) return;
 
-  const targets = $$('.section__head, .cards > li, .cta-band__panel, .steps > li, .about__inner > *');
+  const targets = $$('.section__head, .cards > li, .cta-band__panel, .steps > li, .promises > li, .about__inner > *');
   if (targets.length === 0) return;
 
   const observer = new IntersectionObserver((entries) => {
@@ -1387,6 +1480,8 @@ loadServices();
 loadItemPage();
 loadProducts();
 loadPractitioners();
+loadHomePractitioners();
+loadTestimonials();
 initYear();
 initStarfields();
 initGlitter();

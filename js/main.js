@@ -231,13 +231,30 @@ function cardBadge(text) {
   return badge;
 }
 
+/**
+ * Shows a photo with the framing set in the admin, kept after a # in its link:
+ * https://…/photo.jpg#pos=50,30&zoom=1.2 (position in % across and down, zoom).
+ */
+function setPhoto(img, url) {
+  const [base, hash = ''] = String(url || '').split('#');
+  const params = new URLSearchParams(hash);
+  const [x, y] = (params.get('pos') || '').split(',').map(Number);
+  const zoom = Number(params.get('zoom'));
+  const pos = (value) => (Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : 50);
+  img.src = base;
+  if (!hash) return; // the page's own default framing
+  img.style.objectPosition = pos(x) + '% ' + pos(y) + '%';
+  img.style.transformOrigin = pos(x) + '% ' + pos(y) + '%';
+  img.style.transform = zoom > 1 && zoom <= 3 ? 'scale(' + zoom + ')' : '';
+}
+
 /** The first photo across the top of a card, with the badge on it. */
 function cardMedia(item, alt) {
   const media = document.createElement('div');
   media.className = 'card__media';
   const image = document.createElement('img');
   image.className = 'card__image';
-  image.src = item.images[0];
+  setPhoto(image, item.images[0]);
   image.alt = alt;
   image.loading = 'lazy';
   image.width = 400;
@@ -348,7 +365,7 @@ function initGallery(images, name, placeholderItem) {
     button.className = 'gallery__thumb';
     button.setAttribute('aria-label', 'Show photo ' + (i + 1) + ' of ' + images.length);
     const thumb = document.createElement('img');
-    thumb.src = src;
+    setPhoto(thumb, src);
     thumb.alt = '';
     thumb.loading = 'lazy';
     button.append(thumb);
@@ -358,7 +375,7 @@ function initGallery(images, name, placeholderItem) {
 
   function show(i) {
     index = (i + images.length) % images.length;
-    image.src = images[index];
+    setPhoto(image, images[index]);
     image.alt = images.length > 1 ? name + ' — photo ' + (index + 1) + ' of ' + images.length : name;
     buttons.forEach((button, b) => button.setAttribute('aria-current', String(b === index)));
   }
@@ -409,15 +426,9 @@ function initOptions(options, name) {
       input.checked = index === 0;
       input.addEventListener('change', () => choose(option));
 
-      const label = document.createElement('span');
-      label.className = 'choice__label';
-      label.textContent = option.label;
-      const price = document.createElement('span');
-      price.className = 'choice__price';
-      price.textContent = option.price;
       const box = document.createElement('span');
       box.className = 'choice__box';
-      box.append(label, price);
+      box.textContent = option.label;
 
       const choice = document.createElement('label');
       choice.className = 'choice';
@@ -433,6 +444,8 @@ function initOptions(options, name) {
   $('#item-price-row').hidden = false;
   $('#item-options').hidden = false;
   choose(options[0]);
+  // The price is shown only above the choices, so announce it when it changes.
+  $('#item-price').setAttribute('aria-live', 'polite');
 }
 
 /** A service's or a product's own page: /service?slug=… or /product?slug=… */
@@ -683,14 +696,17 @@ function practitionerBlock(person, index, isOnly) {
   const media = document.createElement('div');
   media.className = 'about__media';
   if (person.photo) {
+    // The frame clips a zoomed-in photo to the arch.
+    const frame = document.createElement('div');
+    frame.className = 'about__photo about__frame';
     const img = document.createElement('img');
-    img.className = 'about__photo';
-    img.src = person.photo;
+    setPhoto(img, person.photo);
     img.alt = person.name;
     img.width = 900;
     img.height = 1200;
     if (index > 0) img.loading = 'lazy';
-    media.append(img);
+    frame.append(img);
+    media.append(frame);
   } else {
     const placeholder = document.createElement('div');
     placeholder.className = 'about__photo about__photo--initials';

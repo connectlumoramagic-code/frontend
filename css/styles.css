@@ -1048,20 +1048,17 @@ button { font: inherit; }
 
 .choice__box {
   display: grid;
-  gap: 2px;
+  place-items: center;
   min-width: 96px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 10px 16px;
   border: 1px solid var(--field-line);
   border-radius: var(--radius-field);
   background: var(--card);
-  text-align: center;
+  font-weight: 600;
+  color: var(--ink);
   cursor: pointer;
 }
-
-.choice__label { font-weight: 600; color: var(--ink); }
-
-.choice__price { font-size: 0.875rem; color: var(--muted); }
 
 .choice__box:hover { border-color: var(--green); }
 
@@ -1124,6 +1121,8 @@ button { font: inherit; }
 
 .card__media {
   position: relative;
+  overflow: hidden; /* clips a zoomed-in photo */
+  border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0;
   margin: calc(-1 * clamp(24px, 4vw, 36px)) calc(-1 * clamp(24px, 4vw, 36px)) 24px;
 }
 
@@ -1506,6 +1505,9 @@ button { font: inherit; }
 }
 
 .about__media picture { display: block; }
+
+.about__frame { overflow: hidden; }
+.about__frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
 .about__photo { display: block; object-position: 50% 20%; }
 
 .about__lede {

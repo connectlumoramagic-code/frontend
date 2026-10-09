@@ -120,8 +120,22 @@
             </div>
 
             <div class="field">
-              <label class="label" for="message">What would you like guidance on?</label>
-              <textarea class="input textarea" id="message" name="message" rows="4" placeholder="A few lines is enough"></textarea>
+              <label class="label" for="message">Intention</label>
+              <textarea class="input textarea" id="message" name="message" rows="4" placeholder="What would you like this ritual to bring you? A few lines is enough"></textarea>
+            </div>
+
+            <!-- Shown by js/main.js when the backend is configured to receive photos. -->
+            <div class="field" id="photos-field" hidden>
+              <span class="label" id="photos-label">Photo <span class="label__hint">(optional, up to 3)</span></span>
+              <div class="attach">
+                <ul class="attach__list" id="photos-list"></ul>
+                <label class="attach__button" id="photos-button">
+                  <input class="attach__input" type="file" id="photos" accept="image/*" multiple aria-labelledby="photos-label">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                  <span>Attach a photo</span>
+                </label>
+              </div>
+              <p class="form__help" id="photos-status" role="status"></p>
             </div>
 
             <!-- Spam trap. Hidden from people and from assistive technology;
@@ -131,7 +145,7 @@
               <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
             </div>
 
-            <button class="btn btn--primary btn--block" type="submit">Request a session</button>
+            <button class="btn btn--primary btn--block" type="submit">Book my ritual</button>
             <p class="form__help">This opens WhatsApp with your details filled in.</p>
             <p class="form__status" id="form-status" role="status"></p>
           </form>

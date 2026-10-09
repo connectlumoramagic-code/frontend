@@ -1242,6 +1242,98 @@ function recordBooking(payload) {
   });
 }
 
+/* Photos the client attaches: uploaded as soon as they are picked, so the
+   links are ready to go into the WhatsApp message when the form is sent. */
+const MAX_BOOKING_PHOTOS = 3;
+const attachedPhotos = [];
+let photoUploads = 0;
+
+/** Phone photos are large: send at most 1600px wide or tall, as JPEG. */
+async function shrinkPhoto(file) {
+  if (typeof createImageBitmap !== 'function' || file.type === 'image/gif') return file;
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+    if (scale === 1 && file.size < 2 * 1024 * 1024) return file;
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    return blob || file;
+  } catch {
+    return file;
+  }
+}
+
+function initPhotoAttach() {
+  const field = $('#photos-field');
+  const input = $('#photos');
+  if (!field || !input || !CONFIG.apiBaseUrl) return;
+
+  const list = $('#photos-list');
+  const button = $('#photos-button');
+  const note = $('#photos-status');
+  const endpoint = CONFIG.apiBaseUrl.replace(/\/+$/, '') + '/api/bookings/photos';
+  field.hidden = false;
+
+  const render = () => {
+    list.replaceChildren(
+      ...attachedPhotos.map((src, i) => {
+        const item = document.createElement('li');
+        item.className = 'attach__item';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'Attached photo ' + (i + 1);
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'attach__remove';
+        remove.setAttribute('aria-label', 'Remove photo ' + (i + 1));
+        remove.textContent = '×';
+        remove.addEventListener('click', () => {
+          attachedPhotos.splice(i, 1);
+          render();
+        });
+        item.append(img, remove);
+        return item;
+      })
+    );
+    button.hidden = attachedPhotos.length + photoUploads >= MAX_BOOKING_PHOTOS;
+  };
+
+  input.addEventListener('change', async () => {
+    const files = [...input.files].slice(0, MAX_BOOKING_PHOTOS - attachedPhotos.length - photoUploads);
+    input.value = '';
+    if (!files.length) return;
+
+    photoUploads += files.length;
+    render();
+    note.textContent = 'Uploading ' + (files.length === 1 ? 'your photo' : files.length + ' photos') + '…';
+
+    let failed = 0;
+    for (const file of files) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/octet-stream' },
+          body: await shrinkPhoto(file),
+        });
+        const data = await response.json().catch(() => null);
+        if (!response.ok || !data || !data.url) throw new Error();
+        attachedPhotos.push(data.url);
+      } catch {
+        failed += 1;
+      }
+      photoUploads -= 1;
+      render();
+    }
+
+    note.textContent = failed
+      ? 'A photo could not be uploaded. Try another, or send it to us on WhatsApp.'
+      : 'Photo attached.';
+  });
+}
+
 function initBookingForm() {
   const form = $('#booking-form');
   if (!form) return;
@@ -1282,6 +1374,11 @@ function initBookingForm() {
       return;
     }
 
+    if (photoUploads > 0) {
+      if (status) status.textContent = 'Your photo is still uploading — one moment, then press the button again.';
+      return;
+    }
+
     // "7 days — ₹3,299", the same wording the backend stores.
     const optionSelect = $('#option');
     const option = optionSelect && !optionSelect.closest('[hidden]') && optionSelect.value
@@ -1295,7 +1392,8 @@ function initBookingForm() {
       'Reply to: ' + $('#contact').value.trim() + '\n' +
       'Service: ' + $('#service').value + '\n' +
       (option ? 'Option: ' + option + '\n' : '') +
-      'Message: ' + ($('#message').value.trim() || '—');
+      'Intention: ' + ($('#message').value.trim() || '—') +
+      attachedPhotos.map((photo, i) => '\nPhoto ' + (i + 1) + ': ' + photo).join('');
 
     const url = whatsappLink() + '?text=' + encodeURIComponent(message);
     window.open(url, '_blank', 'noopener');
@@ -1307,6 +1405,7 @@ function initBookingForm() {
       service: $('#service').value,
       option: option ? optionSelect.value : '',
       message: $('#message').value.trim(),
+      photos: attachedPhotos.slice(),
       website: $('#website') ? $('#website').value : '',
     });
 
@@ -1767,6 +1866,7 @@ initMenu();
 initHeaderShadow();
 initCalculator();
 initBookingForm();
+initPhotoAttach();
 prefillBooking();
 loadServices();
 loadItemPage();

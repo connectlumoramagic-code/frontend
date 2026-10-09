@@ -110,6 +110,15 @@
               <p class="error" id="service-error" hidden>Choose a service.</p>
             </div>
 
+            <!-- Shown by js/main.js for a service with duration & price choices. -->
+            <div class="field" id="option-field" hidden>
+              <label class="label" for="option">Duration</label>
+              <select class="input select" id="option" name="option">
+                <option value="" disabled selected>Choose a duration</option>
+              </select>
+              <p class="error" id="option-error" hidden>Choose a duration.</p>
+            </div>
+
             <div class="field">
               <label class="label" for="message">What would you like guidance on?</label>
               <textarea class="input textarea" id="message" name="message" rows="4" placeholder="A few lines is enough"></textarea>

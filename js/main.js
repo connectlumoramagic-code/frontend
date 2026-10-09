@@ -131,11 +131,13 @@ function initHeaderShadow() {
 
 /* ---------- Shared: open the booking page, pre-filled ---------- */
 
-// /book?service=…&dob=YYYY-MM-DD — read back by prefillBooking() on that page.
-function bookingUrl(service, birthdate) {
+// /book?service=…&dob=YYYY-MM-DD&option=… — read back by prefillBooking() and
+// loadServices() on that page.
+function bookingUrl(service, birthdate, option) {
   const params = new URLSearchParams();
   if (service) params.set('service', service);
   if (birthdate) params.set('dob', birthdate);
+  if (option) params.set('option', option);
   const query = params.toString();
   return '/book' + (query ? '?' + query : '');
 }
@@ -191,6 +193,13 @@ function setServiceIcon(icon, service) {
 function priceNumber(text) {
   const value = Number.parseFloat(String(text || '').replace(/[^\d.]/g, ''));
   return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+/** The cheapest of a service's duration & price choices. */
+function cheapestOption(options) {
+  return options.reduce((low, option) =>
+    (priceNumber(option.price) ?? Infinity) < (priceNumber(low.price) ?? Infinity) ? option : low
+  );
 }
 
 /** Percentage off, when both prices are plain amounts and the original is higher. */
@@ -274,13 +283,15 @@ function serviceCard(service) {
     if (service.badge) item.append(cardBadge(service.badge));
   }
 
-  const text = document.createElement('p');
-  text.className = 'card__text';
-  text.textContent = service.description;
+  item.append(cardTitle(service.title, serviceUrl(service.slug)));
 
-  item.append(cardTitle(service.title, serviceUrl(service.slug)), text);
-
-  if (service.price || service.duration) {
+  // With duration & price choices the card shows the lowest price.
+  if (service.options && service.options.length) {
+    const meta = document.createElement('p');
+    meta.className = 'card__meta';
+    meta.append(cardPrice({ price: 'From ' + cheapestOption(service.options).price }));
+    item.append(meta);
+  } else if (service.price || service.duration) {
     const meta = document.createElement('p');
     meta.className = 'card__meta';
     const duration = document.createElement('span');
@@ -378,6 +389,52 @@ function initGallery(images, name, placeholderItem) {
   });
 }
 
+/**
+ * A service's duration & price choices (3 days · ₹2,100…) on its own page.
+ * Picking one changes the price shown and the booking link.
+ */
+function initOptions(options, name) {
+  const choose = (option) => {
+    $('#item-price').textContent = option.price;
+    $('#item-primary').href = bookingUrl(name, null, option.label);
+  };
+
+  $('#item-options-list').replaceChildren(
+    ...options.map((option, index) => {
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'item-option';
+      input.className = 'choice__input';
+      input.value = option.label;
+      input.checked = index === 0;
+      input.addEventListener('change', () => choose(option));
+
+      const label = document.createElement('span');
+      label.className = 'choice__label';
+      label.textContent = option.label;
+      const price = document.createElement('span');
+      price.className = 'choice__price';
+      price.textContent = option.price;
+      const box = document.createElement('span');
+      box.className = 'choice__box';
+      box.append(label, price);
+
+      const choice = document.createElement('label');
+      choice.className = 'choice';
+      choice.append(input, box);
+      return choice;
+    })
+  );
+
+  // The choices replace the single price and duration.
+  $('#item-compare').hidden = true;
+  $('#item-discount').hidden = true;
+  $('#item-duration').hidden = true;
+  $('#item-price-row').hidden = false;
+  $('#item-options').hidden = false;
+  choose(options[0]);
+}
+
 /** A service's or a product's own page: /service?slug=… or /product?slug=… */
 function loadItemPage() {
   const page = $('#item-page');
@@ -465,9 +522,33 @@ function loadItemPage() {
       }
       $('#item-ask').href = whatsappText('Hello Lumora Magic, I have a question about ' + name + '.');
 
+      if (kind === 'service' && item.options && item.options.length) initOptions(item.options, name);
+
       finish(true);
     })
     .catch(() => finish(false));
+}
+
+// Service title → its duration & price choices, filled by loadServices().
+const serviceChoices = new Map();
+
+/** The booking form's Duration field, shown only for a service with choices. */
+function showOptionField(preferred) {
+  const field = $('#option-field');
+  const select = $('#option');
+  if (!field || !select) return;
+
+  const choices = serviceChoices.get($('#service').value) || [];
+  const wanted = preferred || select.value;
+  select.replaceChildren(
+    select.options[0],
+    ...choices.map((choice) => new Option(choice.label + ' — ' + choice.price, choice.label))
+  );
+  select.value = choices.some((choice) => choice.label === wanted) ? wanted : '';
+  if (!select.value) select.selectedIndex = 0;
+
+  field.hidden = choices.length === 0;
+  setFieldError(select, 'option-error', false);
 }
 
 /**
@@ -500,6 +581,9 @@ function loadServices() {
         select.replaceChildren(placeholder, ...options);
         const match = options.find((option) => option.text === chosen);
         if (match) select.value = match.text;
+
+        for (const service of items) serviceChoices.set(service.title, service.options || []);
+        showOptionField(new URLSearchParams(window.location.search).get('option'));
       }
     })
     .catch(() => {
@@ -1136,6 +1220,7 @@ function initBookingForm() {
     { el: $('#birthdate'), errorId: 'birthdate-error' },
     { el: $('#contact'), errorId: 'contact-error' },
     { el: $('#service'), errorId: 'service-error' },
+    { el: $('#option'), errorId: 'option-error' },
   ];
 
   fields.forEach(({ el, errorId }) => {
@@ -1145,13 +1230,15 @@ function initBookingForm() {
     });
   });
 
+  $('#service').addEventListener('change', () => showOptionField());
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
     let firstInvalid = null;
 
     fields.forEach(({ el, errorId }) => {
-      if (!el) return;
+      if (!el || el.closest('[hidden]')) return; // Duration only counts when shown
       const invalid = !el.value.trim();
       setFieldError(el, errorId, invalid);
       if (invalid && !firstInvalid) firstInvalid = el;
@@ -1163,12 +1250,19 @@ function initBookingForm() {
       return;
     }
 
+    // "7 days — ₹3,299", the same wording the backend stores.
+    const optionSelect = $('#option');
+    const option = optionSelect && !optionSelect.closest('[hidden]') && optionSelect.value
+      ? optionSelect.selectedOptions[0].text
+      : '';
+
     const message =
       'Hello Lumora Magic, I’d like to book a session.\n' +
       'Name: ' + $('#name').value.trim() + '\n' +
       'Date of birth: ' + formatDate($('#birthdate').value) + '\n' +
       'Reply to: ' + $('#contact').value.trim() + '\n' +
       'Service: ' + $('#service').value + '\n' +
+      (option ? 'Option: ' + option + '\n' : '') +
       'Message: ' + ($('#message').value.trim() || '—');
 
     const url = whatsappLink() + '?text=' + encodeURIComponent(message);
@@ -1179,6 +1273,7 @@ function initBookingForm() {
       birthdate: $('#birthdate').value,
       contact: $('#contact').value.trim(),
       service: $('#service').value,
+      option: option ? optionSelect.value : '',
       message: $('#message').value.trim(),
       website: $('#website') ? $('#website').value : '',
     });

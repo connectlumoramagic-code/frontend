@@ -119,6 +119,20 @@
               <p class="error" id="option-error" hidden>Choose a duration.</p>
             </div>
 
+            <!-- Shown by js/main.js for a service that asks for the partner's details. -->
+            <div class="form__row" id="partner-field" hidden>
+              <div class="field">
+                <label class="label" for="partner-name">Partner&rsquo;s name</label>
+                <input class="input" type="text" id="partner-name" name="partnerName" placeholder="Their full name">
+                <p class="error" id="partner-name-error" hidden>Enter your partner&rsquo;s full name.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="partner-birthdate">Partner&rsquo;s date of birth</label>
+                <input class="input" type="date" id="partner-birthdate" name="partnerBirthdate">
+                <p class="error" id="partner-birthdate-error" hidden>Choose your partner&rsquo;s date of birth.</p>
+              </div>
+            </div>
+
             <div class="field">
               <label class="label" for="message">Intention</label>
               <textarea class="input textarea" id="message" name="message" rows="4" placeholder="What would you like this ritual to bring you? A few lines is enough"></textarea>
@@ -126,7 +140,7 @@
 
             <!-- Shown by js/main.js when the backend is configured to receive photos. -->
             <div class="field" id="photos-field" hidden>
-              <span class="label" id="photos-label">Photo <span class="label__hint">(optional, up to 3)</span></span>
+              <span class="label" id="photos-label">Photo <span class="label__hint" id="photos-hint">(optional, up to 3)</span></span>
               <div class="attach">
                 <ul class="attach__list" id="photos-list"></ul>
                 <label class="attach__button" id="photos-button">

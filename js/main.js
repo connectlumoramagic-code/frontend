@@ -558,16 +558,26 @@ function loadItemPage() {
     .catch(() => finish(false));
 }
 
-// Service title → its duration & price choices, filled by loadServices().
-const serviceChoices = new Map();
+// Service title → the service from the backend, filled by loadServices().
+const servicesByTitle = new Map();
+
+/** Partner's details and the photo hint, set per service in the admin. */
+function showServiceExtras() {
+  const service = servicesByTitle.get($('#service').value) || {};
+  const partner = $('#partner-field');
+  if (partner) partner.hidden = !service.askPartner;
+  const hint = $('#photos-hint');
+  if (hint) hint.textContent = '(' + (service.photoNote || 'optional') + ', up to 3)';
+}
 
 /** The booking form's Duration field, shown only for a service with choices. */
 function showOptionField(preferred) {
+  showServiceExtras();
   const field = $('#option-field');
   const select = $('#option');
   if (!field || !select) return;
 
-  const choices = serviceChoices.get($('#service').value) || [];
+  const choices = (servicesByTitle.get($('#service').value) || {}).options || [];
   const wanted = preferred || select.value;
   select.replaceChildren(
     select.options[0],
@@ -611,7 +621,7 @@ function loadServices() {
         const match = options.find((option) => option.text === chosen);
         if (match) select.value = match.text;
 
-        for (const service of items) serviceChoices.set(service.title, service.options || []);
+        for (const service of items) servicesByTitle.set(service.title, service);
         showOptionField(new URLSearchParams(window.location.search).get('option'));
       }
     })
@@ -1345,6 +1355,8 @@ function initBookingForm() {
     { el: $('#contact'), errorId: 'contact-error' },
     { el: $('#service'), errorId: 'service-error' },
     { el: $('#option'), errorId: 'option-error' },
+    { el: $('#partner-name'), errorId: 'partner-name-error' },
+    { el: $('#partner-birthdate'), errorId: 'partner-birthdate-error' },
   ];
 
   fields.forEach(({ el, errorId }) => {
@@ -1385,6 +1397,11 @@ function initBookingForm() {
       ? optionSelect.selectedOptions[0].text
       : '';
 
+    const partnerShown = $('#partner-field') && !$('#partner-field').hidden;
+    const partner = partnerShown
+      ? { name: $('#partner-name').value.trim(), birthdate: $('#partner-birthdate').value }
+      : null;
+
     const message =
       'Hello Lumora Magic, I’d like to book a session.\n' +
       'Name: ' + $('#name').value.trim() + '\n' +
@@ -1392,6 +1409,7 @@ function initBookingForm() {
       'Reply to: ' + $('#contact').value.trim() + '\n' +
       'Service: ' + $('#service').value + '\n' +
       (option ? 'Option: ' + option + '\n' : '') +
+      (partner ? 'Partner: ' + partner.name + ', born ' + formatDate(partner.birthdate) + '\n' : '') +
       'Intention: ' + ($('#message').value.trim() || '—') +
       attachedPhotos.map((photo, i) => '\nPhoto ' + (i + 1) + ': ' + photo).join('');
 
@@ -1406,6 +1424,8 @@ function initBookingForm() {
       option: option ? optionSelect.value : '',
       message: $('#message').value.trim(),
       photos: attachedPhotos.slice(),
+      partnerName: partner ? partner.name : '',
+      partnerBirthdate: partner ? partner.birthdate : '',
       website: $('#website') ? $('#website').value : '',
     });
 

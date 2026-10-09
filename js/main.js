@@ -426,9 +426,25 @@ function initOptions(options, name) {
       input.checked = index === 0;
       input.addEventListener('change', () => choose(option));
 
+      // "21 Days" → a big 21 over a small "Days"; other labels stay whole.
       const box = document.createElement('span');
       box.className = 'choice__box';
-      box.textContent = option.label;
+      const parts = /^(\d+)\s+(.+)$/.exec(option.label);
+      const number = document.createElement('span');
+      number.className = 'choice__number';
+      number.textContent = parts ? parts[1] : option.label;
+      box.append(number);
+      if (parts) {
+        const unit = document.createElement('span');
+        unit.className = 'choice__unit';
+        unit.textContent = parts[2];
+        box.append(unit);
+      }
+      const spark = document.createElement('span');
+      spark.className = 'choice__spark';
+      spark.setAttribute('aria-hidden', 'true');
+      spark.textContent = '✦';
+      box.append(spark);
 
       const choice = document.createElement('label');
       choice.className = 'choice';
